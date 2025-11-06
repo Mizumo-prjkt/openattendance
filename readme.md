@@ -4,7 +4,7 @@ A Nodejs Web System, dedicated for recording Attendance Records of School Studen
 
 ---
 
-![framework](https://img.shields.io/badge/Using-NodeJS-BrightGreen?style=flat&logo=nodedotjs)
+![framework](https://img.shields.io/badge/Using-NodeJS-BrightGreen?style=for-the-badge&logo=nodedotjs)
 
 ---
 
