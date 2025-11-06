@@ -28,3 +28,16 @@ This project uses these following components
 - BulmaJS (Desktop UI)
 - SpeakEasy (TFA)
 - - [ ] Passkey Support (*Later Revision*) 
+- MariaDB (As Option in Setup)
+- SQLite3 (As Option in Setup)
+- *and more*
+
+---
+
+## Setup
+
+*For now, this repo is not ready yet to be rolled out yet. Please do wait at a later date.*
+
+## License
+
+This Project has not yet received it's own license, since the project is not complete.
