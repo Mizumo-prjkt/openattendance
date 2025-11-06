@@ -15,4 +15,16 @@ const PORT = 8080; // Our setup port
 app.use('/modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/assets', express.static(path.join(__dirname, 'setup/assets')));
 
+// Serve the Setup HTML First with index.html
+// To process the device type
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'setup/index.html'));
+})
+
+// Rest of HTML files
+
+
+
+// Assortments of API calls
+
 
