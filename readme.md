@@ -30,6 +30,7 @@ This project uses these following components
 - - [ ] Passkey Support (*Later Revision*) 
 - MariaDB (As Option in Setup)
 - SQLite3 (As Option in Setup)
+- qrcode
 - *and more*
 
 ---
