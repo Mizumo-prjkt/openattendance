@@ -4,7 +4,7 @@ A Nodejs Web System, dedicated for recording Attendance Records of School Studen
 
 ---
 
-![framework](https://img.shields.io/badge/Framework_Using-NodeJS-5FA04E?style=for-the-badge&logo=nodedotjs) ![db1](https://img.shields.io/badge/Database_1-SQLITE_3-blue?style=for-the-badge&logo=sqlite) ![db2](https://img.shields.io/badge/Database_2-MariaDB-red?style=for-the-badge&logo=mariadb) ![dev](https://img.shields.io/badge/Node_Dev_Engine-Nodemon-76D04B?style=for-the-badge&logo=nodemon)  ![dev](https://img.shields.io/badge/Releases-not_available-darkred?style=for-the-badge&logo=package)
+![framework](https://img.shields.io/badge/Framework_Using-NodeJS-5FA04E?style=for-the-badge&logo=nodedotjs) ![db1](https://img.shields.io/badge/Database_1-SQLITE_3-blue?style=for-the-badge&logo=sqlite) ![db2](https://img.shields.io/badge/Database_2-MariaDB-red?style=for-the-badge&logo=mariadb) ![dev](https://img.shields.io/badge/Node_Dev_Engine-Nodemon-76D04B?style=for-the-badge&logo=nodemon)  ![dev](https://img.shields.io/badge/Releases-not_available-darkred?style=for-the-badge&logo=package) ![dev](https://img.shields.io/badge/status-development-darkred?style=for-the-badge&logo=package)
 
 ---
 
