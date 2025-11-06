@@ -47,4 +47,4 @@ This Project has not yet received it's own license, since the project is not com
 
 ## For schools who don't want to buy a domain or manually manage Certificates
 
-For the schools who don't want to spend a dime for domain hosting this, we would want you to introduce [Tailscale](https://tailscale.com/) with their [Tailscale Serve](https://tailscale.com/tools/serve). So you don't have to even worry very much for security attacks while on cloud, as Tailscale should handle it. *Not sponsored btw*
+For the schools who don't want to spend a dime for domain hosting this, we would want you to introduce [Tailscale](https://tailscale.com/) with their [Tailscale Serve](https://tailscale.com/kb/1312/serve). So you don't have to even worry very much for security attacks while on cloud, as Tailscale should handle it. *Not sponsored btw*
