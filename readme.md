@@ -27,4 +27,4 @@ This project uses these following components
 - Framework7 (Mobile UI)
 - BulmaJS (Desktop UI)
 - SpeakEasy (TFA)
-- [ ] Passkey Support (*Later Revision*) 
+- - [ ] Passkey Support (*Later Revision*) 
