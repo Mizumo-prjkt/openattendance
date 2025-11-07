@@ -27,9 +27,24 @@ app.get('/', (req, res) => {
 })
 
 // Rest of HTML files
+// 
+// 1. Forbidden Page - tells/redirects users to not access the page if unauthorized or non-existent
+app.get('/forbidden', (req, res) => {
+    // First, check if the device is mobile or desktop
+    const userAgent = req.headers['user-agent'];
+    const isMobile = /mobile/i.test(userAgent);
 
+    if (isMobile) {
+        // Serve the Framework7 version
+        return res.sendFile(path.join(__dirname, 'setup/assets/html/mobile/forbidden.html'));
+    } else {
+        // Serve the Bulma version
+        return res.sendFile(path.join(__dirname, 'setup/assets/html/desktop/forbidden.html'));
+    }
+})
 
 
 // Assortments of API calls
+// 
 
 
