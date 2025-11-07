@@ -11,6 +11,11 @@ const path = require('path');
 const app = express();
 const PORT = 8080; // Our setup port
 
+// Server start, notify on which port
+app.listen(PORT, () => {
+    console.log(`OpenAttendance Setup is running on http://localhost:${PORT}`);
+});
+
 // Serve the files required for setup
 app.use('/modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/assets', express.static(path.join(__dirname, 'setup/assets')));
