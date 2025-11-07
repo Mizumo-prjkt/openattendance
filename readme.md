@@ -37,7 +37,7 @@ This project uses these following components
 
 ## Setup
 
-*For now, this repo is not ready yet to be rolled out yet. Please do wait at a later date.*
+*For now, this repo is not ready to be rolled out yet. Please do wait at a later date.*
 
 ## License
 
