@@ -54,6 +54,18 @@ app.get('/api', (req, res) => {
     res.redirect(`/forbidden?code=${error.code}&title=${encodeURIComponent(error.title)}&message=${encodeURIComponent(error.message)}`);
 });
 
+// Catch-all for 404 Not Found errors
+// This should be the last route handler to catch any unmatched requests.
+app.use((req, res, next) => {
+    const error = {
+        code: 404,
+        title: 'Page Not Found',
+        message: `The page you requested at '${req.originalUrl}' could not be found.`
+    };
+    // Redirect to the forbidden page with 404 error details
+    res.redirect(`/forbidden?code=${error.code}&title=${encodeURIComponent(error.title)}&message=${encodeURIComponent(error.message)}`);
+});
+
 
 // Assortments of API calls
 // 
