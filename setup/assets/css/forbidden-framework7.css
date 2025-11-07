@@ -1,0 +1,107 @@
+/* /assets/css/forbidden-framework7.css */
+
+:root {
+  /* Using a standard Material Design color. You can change this to your app's theme color. */
+  --f7-theme-color: #a80000; 
+}
+
+.page-content {
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar {
+    background-color: var(--f7-theme-color);
+}
+
+.navbar .title {
+    color: #fff;
+}
+
+.block {
+  background: #ffffff;
+  border-radius: 16px; /* More rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Material shadow */
+  margin-left: 16px;
+  margin-right: 16px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden; /* To contain the giant error code */
+  width: 100%;
+}
+
+.block h1 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.block p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.error-code {
+  font-size: 100px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.05); /* Faded color */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  user-select: none;
+}
+
+.link-area {
+  position: relative;
+  z-index: 2; /* Ensure links are on top of the error code */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5px; /* Add margin below the link area */
+}
+
+.link-area2 {
+  position: relative;
+  z-index: 2; /* Ensure links are on top of the error code */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5px; /* Add margin below the link area */
+}
+
+.raw-report {
+    color: var(--f7-theme-color);
+    text-decoration: none;
+    
+}
+
+.popup-card {
+    width: 90%;
+    max-width: 400px;
+    height: auto;
+    max-height: 80%;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 16px;
+}
+
+.popup-card .page {
+    border-radius: 16px;
+}
+
+.popup-pre {
+    background-color: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

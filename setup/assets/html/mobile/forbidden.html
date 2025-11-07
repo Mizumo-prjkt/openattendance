@@ -9,5 +9,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Forbidden Access</title>
         <link rel="stylesheet" href="/assets/css/forbidden-framework7.css">
+        <link rel="stylesheet" href="/modules/framework7/framework7-bundle.min.css">
+
     </head>
+    <body>
+        <div id="app">
+            <div class="page">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="title"><b>Forbidden</b></div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div class="block">
+                        <h1>Unauthorized Access</h1>
+                        <p>You do not have permission to access this page.</p>
+                        <div class="error-code">403</div>
+                        <div class="link-area">
+                            <a href="#" class="back-link">Go Back</a>
+                            <!-- You can add more links here, e.g., to the homepage -->
+                        </div>
+                        <div class="link-area2">
+                            <a href="#" class="raw-report">View Hardcoded Response</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="raw-report-card-popup-modal" class="popup popup-card">
+            <div class="page">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="title">Hardcoded Response</div>
+                        <div class="right">
+                            <a href="#" class="link popup-close">Close</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div class="block">
+                    <h3>Hardcoded Response</h3>
+                    <!-- Demo test for <pre>, later revisions, JS should divert errors here at frontend -->
+                    <pre class="popup-pre">{
+    "status": 403,
+    "error": "Forbidden",
+    "message": "You do not have permission to access this page."
+}</pre>
+                </div>
+            </div>
+        </div>
+        <script src="/modules/framework7/framework7-bundle.min.js"></script>
+        <script src="/assets/js/forbidden-framework7.js"></script>
+    </body>
 </html>
