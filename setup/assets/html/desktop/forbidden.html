@@ -62,25 +62,23 @@
             </div>
         </nav>
         <!-- Real body of Forbidden -->
-         <div class="card">
-            <div class="card-content">
-                <div class="fixed-grid has-2-cols">
-                    <div class="grid">
-                        <!-- Img src images are dynamic, referencing every error image point -->
-                        <img class="cell" src="">
-                        <div class="cell">
-                            <h1 id="error-title">Unauthorized Access</h1>
-                            <p id="error-message">You do not have permission to access this page.</p>
-                            <div id="error-code-display" class="error-code">403</div>
-                        </div>
-                        <div class="cell link-area">
-                            <a href="#" class="back-link">Go Back</a>
-                            <!-- You can add more links here, e.g., to the homepage -->
+        <div class="forbidden-container">
+            <div class="card">
+                <div class="grid">
+                    <div class="cell image-cell">
+                        <img class="forbidden-image" src="/assets/images/page/errors/error_copilot.png" alt="Forbidden Image">
+                    </div>
+                    <div class="cell">
+                        <h1 id="error-title">Unauthorized Access</h1>
+                        <p id="error-message">You do not have permission to access this page.</p>
+                        <div id="error-code-display" class="error-code">403</div>
+                        <div class="link-area">
+                            <a href="#" class="back-link button is-primary">Go Back</a>
                         </div>
                     </div>
                 </div>
             </div>
-         </div>
+        </div>
     </body>
     <script src="/assets/js/forbidden-bulma.js"></script>
 </html>
