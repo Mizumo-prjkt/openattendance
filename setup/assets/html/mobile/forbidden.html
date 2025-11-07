@@ -22,9 +22,9 @@
                 </div>
                 <div class="page-content">
                     <div class="block">
-                        <h1>Unauthorized Access</h1>
-                        <p>You do not have permission to access this page.</p>
-                        <div class="error-code">403</div>
+                        <h1 id="error-title">Unauthorized Access</h1>
+                        <p id="error-message">You do not have permission to access this page.</p>
+                        <div id="error-code-display" class="error-code">403</div>
                         <div class="link-area">
                             <a href="#" class="back-link">Go Back</a>
                             <!-- You can add more links here, e.g., to the homepage -->
@@ -49,12 +49,7 @@
                 <div class="page-content">
                     <div class="block">
                     <h3>Hardcoded Response</h3>
-                    <!-- Demo test for <pre>, later revisions, JS should divert errors here at frontend -->
-                    <pre class="popup-pre">{
-    "status": 403,
-    "error": "Forbidden",
-    "message": "You do not have permission to access this page."
-}</pre>
+                    <pre id="error-json" class="popup-pre"></pre>
                 </div>
             </div>
         </div>
