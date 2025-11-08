@@ -48,7 +48,7 @@ app.get('/api', (req, res) => {
     const error = {
         code: 403,
         title: 'Forbidden',
-        message: 'API endpoints cannot be accessed directly in a browser.'
+        message: 'API endpoints cannot and SHOULD NOT be accessed directly in a browser.'
     };
     // Redirect to the forbidden page with error details as query parameters
     res.redirect(`/forbidden?code=${error.code}&title=${encodeURIComponent(error.title)}&message=${encodeURIComponent(error.message)}`);

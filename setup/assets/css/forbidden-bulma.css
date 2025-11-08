@@ -55,8 +55,17 @@ html, body {
     font-size: 6rem;
     font-weight: bold;
     color: rgba(0, 0, 0, 0.1);
+    font-family: 'Momo Trust Display', sans-serif;
 }
 
 .link-area {
     margin-top: 1.5rem;
+}
+
+.unauth-header {
+    font-family: 'Stack Sans Notch', sans-serif;
+}
+
+.unauth-body {
+    font-family: 'Tilt Neon', sans-serif;
 }
