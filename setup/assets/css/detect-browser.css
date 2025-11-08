@@ -8,3 +8,20 @@
     min-height: 100%;
 
 }
+
+#status-detection-header {
+    font-family: 'Stack Sans Notch', sans-serif;
+}
+
+#status-detection-body  {
+    font-family: 'Tilt Neon', sans-serif;
+}
+
+#additional-texts {
+    font-family: 'Momo Trust Display', sans-serif;
+}
+
+#button-dynamic {
+    color: white;
+    font-family: 'Stack Sans Notch', sans-serif;
+}
