@@ -1,0 +1,10 @@
+/* For index.html */
+
+.target-pure-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    min-height: 100%;
+
+}

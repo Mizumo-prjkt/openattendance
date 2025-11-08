@@ -43,6 +43,21 @@ app.get('/forbidden', (req, res) => {
     }
 })
 
+// 2. Setup Page, make sure to serve the correct version based on device type
+app.get('/setup', (req, res) => {
+    // Check device type again
+    const userAgent = req.headers['user-agent'];
+    const isMobile = /mobile/i.test(userAgent);
+
+    if (isMobile) {
+        // Serve the Framework7 version
+        return res.sendFile(path.join(__dirname, 'setup/assets/html/mobile/setup.html'));
+    } else {
+        // Serve the Bulma version
+        return res.sendFile(path.join(__dirname, 'setup/assets/html/desktop/setup.html'));
+    }
+})
+
 // Redirect any direct access to /api path to the forbidden page
 app.get('/api', (req, res) => {
     const error = {
