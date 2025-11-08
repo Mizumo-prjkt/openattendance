@@ -14,8 +14,8 @@ html, body {
 }
 
 .card {
-    max-width: 800px; /* A better width for a dialog with two columns */
-    width: 90%; /* Use a percentage width for responsiveness */
+    max-width: 500px; /* A better width for a dialog with two columns */
+    width: 55%; /* Use a percentage width for responsiveness */
     border-radius: 16px; /* Increased for more rounded edges */
     overflow: hidden; /* Ensures the image respects the card's border-radius */
     box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.15); /* Added shadow for a floating effect */
@@ -28,7 +28,7 @@ html, body {
 }
 
 .cell {
-    padding: 2rem;
+    padding: 1rem;
 }
 
 .cell.image-cell {
