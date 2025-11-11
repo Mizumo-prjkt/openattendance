@@ -1,0 +1,28 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+p {
+    font-family: 'Oxanium', sans-serif;
+    margin-left: 50%;
+    margin-right: 50%;
+}
+
+.title {
+    font-family: 'Stack Sans Notch', sans-serif;
+}
+
+#start-setup-btn {
+    margin-top: 5%;
+    font-family: 'Stack Sans Notch', sans-serif;
+}
+#start-setup-btn:hover {
+    background-color: darkcyan;
+    color: white
+}

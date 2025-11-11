@@ -1,0 +1,28 @@
+/* Force Bulma to always use light mode */
+:root {
+  color-scheme: light; /* Tell browser to use light mode */
+}
+
+/* Override Bulma's dark mode media query */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Reset variables to light mode values */
+    --bulma-scheme-h: 0;
+    --bulma-scheme-s: 0%;
+    --bulma-scheme-l: 100%;
+    --bulma-background-l: 100%;
+    --bulma-border-l: 86%;
+    --bulma-text-strong-l: 21%;
+    --bulma-text-l: 29%;
+    --bulma-text-light-l: 48%;
+    --bulma-text-weak-l: 71%;
+    --bulma-hover-background-l: 96%;
+    --bulma-active-background-l: 93%;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: hsl(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-background-l));
+    color: hsl(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-text-l));
+  }
+}

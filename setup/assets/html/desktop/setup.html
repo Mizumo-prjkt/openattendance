@@ -13,24 +13,35 @@
         <link rel="stylesheet" href="/modules/bulma/css/bulma.min.css">
     </head>
     <body>
-        <div class="background">
-            <div class="container">
-                <div class="card">
-                    <div class="title">
-                        <h1 class="title is-3 has-text-centered">OpenAttendance First Time Setup Wizard</h1>
-                    </div>
-                    <div class="content">
-                        <div class="body">
-                            <p class="welcome-text-body">Welcome to the OpenAttendance First Time Setup Wizard</p>
-                            <p class="welcome-text-body">This wizard will guide you through the initial configuration of your OpenAttendance system.</p>
-                            <p class="welcome-text-body">Click "Start Setup" to begin the configuration process.</p>
-                            <div class="has-text-centered">
-                                <button id="start-setup-btn" class="button is-primary is-medium">Start Setup</button>
+        <section class="hero is-fullheight">
+            <div class="hero-body">
+                <div class="container">
+                    <div class="card"> 
+                        <div class="card-content">
+                            <div class="title">
+                                <h1 class="title is-3 has-text-centered">OpenAttendance First Time Setup Wizard</h1>
+                            </div>
+                            <div class="body" id="dynamic-body-target">
+                                <p class="welcome-text-body">Welcome to the OpenAttendance First Time Setup Wizard</p>
+                                <p class="welcome-text-body">This wizard will guide you through the initial configuration of your OpenAttendance system.</p>
+                                <p class="welcome-text-body">Click "Start Setup" to begin the configuration process.</p>
+                                <div class="has-text-centered">
+                                    <button id="start-setup-btn" class="button is-primary is-medium">Start Setup</button>
+                                </div>
+                                <div class="card-navigation">
+                                    <button id="back-btn" class="button is-light" style="display: none;">Back</button>
+                                    <button id="next-btn" class="button is-primary" style="display: none;">Next</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </body>
+    <script src="/assets/js/setup/desktop/setup-ui.js"></script>
+    <script src="/assets/js/2auth_manager.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/login.js"></script>
+    <script src="/assets/js/register.js"></script>
 </html>

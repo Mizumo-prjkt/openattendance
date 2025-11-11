@@ -1,0 +1,74 @@
+📚 OpenAttendance Terms and Conditions of Use
+These Terms and Conditions ("Terms") govern the use of the OpenAttendance software ("Software"), an open-source project designed for the digital recording of student attendance during school times and events. By downloading, using, or accessing the Software, you ("End User" or "Customer") agree to be bound by these Terms.
+
+1. General Conditions and Licensing
+1.1 Software Availability and Cost
+The OpenAttendance Software is free to use. The Software is provided as a community-driven, open-source project.
+
+1.2 Donations
+While the Software is free, donations are accepted and appreciated to support its maintenance and development. A sponsor button is available on the official GitHub repository for this purpose.
+
+1.3 Permitted End User Actions
+As the End User, you are permitted to:
+
+Use the Software at your free will within the bounds of applicable laws.
+
+Examine the source code. Note that submitting changes or participating in code reviews requires a valid GitHub account.
+
+Rebrand the Software to fit your existing school system's aesthetics and identity.
+
+1.4 Recommended Usage
+We strongly recommend the following operational practices:
+
+The service should primarily be run within the school's INTRANET (local network).
+
+Even with the grant of free will, please analyze and perform a study of your actions before applying them to the OpenAttendance system to prevent potential mishaps or data integrity issues.
+
+2. Disclaimers and Endorsements
+2.1 Third-Party Endorsement Disclaimer
+We may endorse the use of tools like Tailscale for creating a secure network (tailnet) and secure routing. However, we are not partnered with any such third-party provider, and the use of any specific routing method, including Tailscale, is not enforced. The End User is entirely free to use other routing or network security methods.
+
+2.2 No Warranty
+The Software is provided "as is" with absolutely zero warranty. To the maximum extent permitted by applicable law, the Software is provided without guarantees of any kind, either express or implied, including, but not limited to, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement.
+
+2.3 Liability and Security
+OpenAttendance is not liable or responsible for any student credential breach or data loss.
+
+The End User is required and expected to perform regular network security audits and inspections on their infrastructure.
+
+The End User should exercise protective measures for any content (including student data) created or stored using this Software to prevent malicious breaches.
+
+We do not provide security certificates (e.g., SSL/TLS). If you plan to expose the Software to the public internet, you must use other appropriate tools or services for deployment to ensure security.
+
+2.4 Data Transfer Responsibility
+If the End User decides to discontinue use of the Software (due to upgrades, finding alternatives, etc.), we recommend they consult or query the alternative system's help requests to initiate data transfer. We do not provide any tools whatsoever to transfer student data out of the OpenAttendance system.
+
+3. Support and Bug Reporting
+3.1 Maintenance and Support
+The Software is maintained by an independent developer with zero budget. Consequently, bugs may be addressed slowly, and response times for support inquiries cannot be guaranteed.
+
+3.2 Bug Reporting Requirements
+If a bug is encountered, the End User is required to provide comprehensive details to aid in diagnosis, including:
+
+The structure of the system if it was modified from its original form.
+
+Details of the operating System and OS version.
+
+The date/time the Software was installed.
+
+The database used.
+
+The specific Node version and npm version used.
+
+The commands used to run the Software.
+
+Whether it was installed in a containerized environment (e.g., Docker, Proxmox, etc.).
+
+Details of any other tools outside the OpenAttendance system that may have an effect on its operation (e.g., systemd for auto-execution at boot).
+
+4. Distribution and Compliance
+4.1 Redistribution Policy
+Redistribution of the Software is strictly not allowed. The official GitHub repository is the only way to legitimately obtain a copy of the Software.
+
+4.2 Local and International Compliance
+If the End User is operating in the United States or the European Union (EU), the End User is responsible for ensuring compliance with all applicable state or nation protocols and laws pertaining to data privacy and security measures (e.g., FERPA in the US, GDPR in the EU).
