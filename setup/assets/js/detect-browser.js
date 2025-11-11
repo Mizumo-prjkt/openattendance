@@ -66,13 +66,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         statusDetectionBody.textContent = `Your browser (${browserName}) is supported. You can proceed with the setup.`;
         extraMessage.textContent = "Detected Device Type: " + deviceType;
         dynamicBtn.textContent = "Proceed to Setup";
-        // First, check device type to redirect accordingly
-        // UPDATE: Now handled in server-side routing
-        // if (deviceType === "mobile") {
-        //     dynamicBtn.href = "mobile/index.html";
-        // } else {
-        //     dynamicBtn.href = "index.html";
-        // }
         dynamicBtn.href = "/setup";
         dynamicBtn.style.display = "inline-block";
         dynamicBtn.classList.add('is-success');
