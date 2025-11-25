@@ -26,3 +26,9 @@ p {
     background-color: darkcyan;
     color: white
 }
+
+/* This doesnt work, god damn */
+/* .border-line {
+    border-left: 1px solid gray;
+    width: 10px;
+} */
