@@ -20,7 +20,7 @@ function pageUIDisplayPage(targetHTML, pageID) {
             <hr/>
             `;
             break;
-            
+
         case 3:
             // Admin Account Setup Page
             targetHTML.innerHTML = `
@@ -44,11 +44,15 @@ function pageUIDisplayPage(targetHTML, pageID) {
                     <input class="input" type="password" id="admin-confirm-password" placeholder="Confirm admin password">
                 </div>
             </div>
+            <hr/>
+            <div class="field">
+                <button class="button is-info" id="add-account-admin-btn">Add Admin Account</button>
+                <button class="button is-info" id="validate-admin-btn">Validate Admin Credentials</button>
             <div class="dynamic-message" id="admin-message"></div>
             <hr/>
             
             `
-            nextBtn.disabled = true; // Disable next button until valid input
+            nextBtn.disabled = true; // Disable next button until validation
             // Add event listeners to input fields to validate
             const adminUsername = document.getElementById('admin-username');
             const adminPassword = document.getElementById('admin-password');
@@ -57,7 +61,100 @@ function pageUIDisplayPage(targetHTML, pageID) {
 
             
             break;
+
+        case 4:
+            // System Configuration Page
+            targetHTML.innerHTML = `
+            <h2 class="title is-4">System Configuration</h2>
+            <p class="subtitle is-6">Configure the basic details for your school or organization.</p>
+            
+            <div class="field">
+                <label class="label">School Name <span class="has-text-danger">*</span></label>
+                <div class="control">
+                    <input class="input" type="text" id="school-name" placeholder="e.g., OpenAttendance High School">
+                </div>
+            </div>
+
+            <div class="columns is-multiline">
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">School Type</label>
+                        <div class="control is-expanded">
+                            <div class="select is-fullwidth">
+                                <select id="school-type">
+                                    <option value="">Select type</option>
+                                    <option value="public">Public</option>
+                                    <option value="private">Private</option>
+                                    <option value="charter">Charter</option>
+                                    <option value="international">International</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Country Code <span class="has-text-danger">*</span></label>
+                        <div class="control">
+                            <input class="input" type="text" id="country-code" placeholder="e.g., US, PH">
+                        </div>
+                        <p class="help">Use ISO 3166-1 alpha-2 codes. <a href="https://en.wikipedia.org/wiki/ISO_3166-1#Codes" rel="noopener noreferrer" target="_blank">What is ISO 3166-1 code of my own nation?</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Address</label>
+                <div class="control">
+                    <textarea class="textarea" id="school-address" placeholder="Enter school address"></textarea>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Organization Hotline (Optional)</label>
+                <div class="control">
+                    <input class="input" type="text" id="org-hotline" placeholder="e.g., +1-800-555-1234">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">School Logo (Optional)</label>
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="file" id="logo-file" name="logo_file" accept="image/*">
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+            <div class="field">
+                <button class="button is-info" id="save-config-btn">Save Configuration</button>
+            </div>
+            <div class="dynamic-message" id="config-message"></div>
+            `;
+            nextBtn.disabled = true; // Disable until config is saved
+            break;
+
+        case 5:
+            // Final Landing
+            targetHTML.innerHTML = `
+            <h2 class="title is-4">Setup Complete!</h2>
+            <p class="subtitle is-6">You have successfully completed the setup process.</p>
+            <div class="has-text-centered">
+                <p>You can now proceed to log in to the system using your admin account.</p>
+                <button class="button is-primary" id="finish-setup-btn" onclick="alert("Run the runtime mode!")">Go to Login Page</button>
+            </div>
+            <hr/>
+            `;
+            const cardnavContainer = document.getElementById('cardnav-container');
+            if (cardnavContainer) {
+                cardnavContainer.style.display = 'none';
+            }
+            break;
     }
+
+    // After rendering the HTML, attach the specific event listeners for that page.
+    attachPageEventListeners(pageID);
 }
 
 
@@ -67,7 +164,6 @@ function pageUIDisplayPage(targetHTML, pageID) {
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
     const startSetup = document.getElementById('start-setup-btn');
-
 
     // Page ID variable holder
     let pageID = 0;
@@ -177,7 +273,8 @@ function pageUIDisplayPage(targetHTML, pageID) {
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
     }
 
-    // Listen for clicks inside the dynamic area and react to the benchmark start button
+    // This listener is now only for elements that persist or are simple enough
+    // for delegation. Complex page logic is moved to attachPageEventListeners.
     dynamicBodyTarget.addEventListener('click', async (event) => {
         const target = event && event.target;
         if (!target) return;
@@ -205,6 +302,93 @@ function pageUIDisplayPage(targetHTML, pageID) {
             button.disabled = false;
         }
     });
+
+    function attachPageEventListeners(pageID) {
+        if (pageID === 3) { // Admin Account Setup
+            const addBtn = document.getElementById('add-account-admin-btn');
+            const validateBtn = document.getElementById('validate-admin-btn');
+            const messageDiv = document.getElementById('admin-message');
+
+            const handleAdminAction = (action) => {
+                const username = document.getElementById('admin-username').value;
+                const password = document.getElementById('admin-password').value;
+                messageDiv.innerHTML = '';
+
+                if (!username || !password) {
+                    messageDiv.innerHTML = '<p class="has-text-danger">Username and password are required.</p>';
+                    return;
+                }
+
+                if (action === 'add') {
+                    const confirmPassword = document.getElementById('admin-confirm-password').value;
+                    if (password !== confirmPassword) {
+                        messageDiv.innerHTML = '<p class="has-text-danger">Passwords do not match.</p>';
+                        return;
+                    }
+                    addAdminAccount(username, password)
+                        .then(data => {
+                            messageDiv.innerHTML = `<p class="has-text-success">${data.message}</p>`;
+                            nextBtn.disabled = false;
+                        })
+                        .catch(err => {
+                            messageDiv.innerHTML = `<p class="has-text-danger">Error: ${err.message}</p>`;
+                        });
+                } else if (action === 'validate') {
+                    validateAdminCredentials(username, password)
+                        .then(data => {
+                            if (data.success) {
+                                messageDiv.innerHTML = `<p class="has-text-success">${data.message}</p>`;
+                                nextBtn.disabled = false;
+                            }
+                        })
+                        .catch(err => {
+                            messageDiv.innerHTML = `<p class="has-text-danger">Validation Failed: ${err.message}</p>`;
+                        });
+                }
+            };
+
+            if (addBtn) addBtn.addEventListener('click', () => handleAdminAction('add'));
+            if (validateBtn) validateBtn.addEventListener('click', () => handleAdminAction('validate'));
+        }
+
+        if (pageID === 4) { // System Configuration
+            const saveBtn = document.getElementById('save-config-btn');
+            if (!saveBtn) return;
+
+            saveBtn.addEventListener('click', () => {
+                const messageDiv = document.getElementById('config-message');
+                messageDiv.innerHTML = '';
+
+                const formData = new FormData();
+                formData.append('school_name', document.getElementById('school-name').value);
+                formData.append('school_type', document.getElementById('school-type').value);
+                formData.append('address', document.getElementById('school-address').value);
+                formData.append('organization_hotline', document.getElementById('org-hotline').value);
+                formData.append('country_code', document.getElementById('country-code').value);
+
+                const logoFile = document.getElementById('logo-file').files[0];
+                if (logoFile) formData.append('logo_file', logoFile);
+
+                if (!formData.get('school_name') || !formData.get('country_code')) {
+                    messageDiv.innerHTML = '<p class="has-text-danger">School Name and Country Code are required.</p>';
+                    return;
+                }
+
+                saveBtn.classList.add('is-loading');
+
+                saveConfiguration(formData)
+                .then(data => {
+                    messageDiv.innerHTML = `<p class="has-text-success">${data.message}</p>`;
+                    nextBtn.disabled = false; // Enable next button
+                    saveBtn.disabled = true; // Prevent re-saving
+                })
+                .catch(err => {
+                    messageDiv.innerHTML = `<p class="has-text-danger">Error: ${err.message}</p>`;
+                })
+                .finally(() => saveBtn.classList.remove('is-loading'));
+            });
+        }
+    }
 
     function displayBenchmarkResults(results) {
         // Cleaning up the loading ui
@@ -272,4 +456,3 @@ function pageUIDisplayPage(targetHTML, pageID) {
             <p class="is-size-7"><em>Note: The benchmark table has been cleaned up.</em></p>
         `;
     }
-

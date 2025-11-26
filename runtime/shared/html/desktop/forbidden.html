@@ -1,0 +1,87 @@
+<!-- Forbidden Page -->
+<!-- A Body template page when a user or any other unauthorized groups tries to access the system -->
+<!-- Since this is a desktop variant, display the forbidden page using bulma framework --> 
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Forbidden Access</title>
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/forbidden-bulma.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+    </head>
+    <body>
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <!-- Logo here, for now, leave this empty... -->
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navBarNavigation">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+            <div id="navBarNavigation" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item">
+                        Home
+                    </a>
+                    <a class="navbar-item">
+                        Manage
+                    </a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                        Settings
+                        </a>
+                        <div class="navbar-dropdown">
+                            <!-- <a class="navbar-item">
+                                Profile
+                            </a>
+                            <a class="navbar-item">
+                                Account
+                            </a> -->
+                            <a class="navbar-item">
+                                Light/Dark Mode
+                            </a>
+                            <!-- <hr class="navbar-divider">
+                            <a class="navbar-item">
+                                Log Out
+                            </a> -->
+                        </div>
+                    </div>
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a class="button is-primary">
+                                Scan QR Code
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- Real body of Forbidden -->
+        <div class="forbidden-container">
+            <div class="card">
+                <div class="grid">
+                    <div class="cell image-cell">
+                        <img class="forbidden-image" src="/shared/etc/page/errors/error_copilot.png" alt="Forbidden Image">
+                    </div>
+                    <div class="cell">
+                        <h1 id="error-title" class="unauth-header">Unauthorized Access</h1>
+                        <p id="error-message" class="unauth-body">You do not have permission to access this page.</p>
+                        <div id="error-code-display" class="error-code">403</div>
+                        <div class="link-area">
+                            <a href="#" class="back-link button is-primary">Go Back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="/shared/js/forbidden-bulma.js"></script>
+</html>
+
+    </html>

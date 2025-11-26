@@ -17,6 +17,13 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const multer = require('multer');
 const PORT = 8080; // Our setup port
+const mkdirp = require('mkdirp');
+
+// Create a directory for logo uploads if it doesn't exist
+const logoUploadDir = path.join(__dirname, 'setup/assets/images/logos');
+if (!fs.existsSync(logoUploadDir)) {
+    fs.mkdirSync(logoUploadDir, { recursive: true });
+}
 
 // Initial variables
 const crypto = require('crypto');
@@ -38,8 +45,8 @@ if (argenv.includes('--debug')) {
     const __dateToday = __dayToday.toLocaleDateString().replace(/\//g, '-');
     // Variable for logfile name should be exposed at runtime so no new file
     // is created every time a log is written to.
-    const logFileName = `debug-Mitra-log-${__dateToday}_${__timeToday}.log`;
-    const logDir = path.join(__dirname, 'development', 'logs');
+    const logFileName = `debug-openattendance-log-setup-${__dateToday}_${__timeToday}.log`;
+    const logDir = path.join(__dirname, 'data', 'logs');
     mkdirp.sync(logDir); // Ensure the directory exists
     logFilePath = path.join(logDir, logFileName); // Assign to the higher-scoped variable
     fs.writeFileSync(logFilePath, `Debug Log Created on ${__dateToday} at ${__timeToday}\n\n`);
@@ -161,6 +168,42 @@ const db = new sqlite3.Database(dbPath, (err) => {
             }
         });
 
+        // Create students table
+        db.run(`CREATE TABLE IF NOT EXISTS students (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           last_name TEXT,
+           first_name TEXT NOT NULL,
+           middle_name TEXT,
+           phone_number TEXT,
+           address TEXT,
+           emergency_contact_name TEXT,
+           emergency_contact_phone TEXT,
+           emergency_contact_relationship TEXT CHECK (
+               emergency_contact_relationship IN ('parent', 'guardian')
+           ),
+           student_id TEXT NOT NULL UNIQUE
+        )`, (err) => {
+            if (err) {
+                console.error(`Error creating students table: ${err.message}`);
+                debugLogWriteToFile(`Error creating students table: ${err.message}`);
+            }
+        });
+
+        // Create configurations table
+        db.run(`CREATE TABLE IF NOT EXISTS configurations (
+           config_id INTEGER PRIMARY KEY AUTOINCREMENT,
+           school_name TEXT NOT NULL,
+           school_type TEXT CHECK (school_type IN ('public', 'private', 'charter', 'international')),
+           address TEXT,
+           logo_directory TEXT,
+           organization_hotline TEXT,
+           country_code TEXT NOT NULL
+        )`, (err) => {
+            if (err) {
+                console.error(`Error creating configurations table: ${err.message}`);
+                debugLogWriteToFile(`Error creating configurations table: ${err.message}`);
+            }
+        });
     }
 });
 
@@ -196,7 +239,9 @@ app.get('/setup', (req, res) => {
 
     if (isMobile) {
         // Serve the Framework7 version
-        return res.sendFile(path.join(__dirname, 'setup/assets/html/mobile/setup.html'));
+        // return res.sendFile(path.join(__dirname, 'setup/assets/html/mobile/setup.html'));
+        // For now, redirect mobile users to desktop setup until framework7's issue is fixed
+        return res.sendFile(path.join(__dirname, 'setup/assets/html/desktop/setup.html'));
     } else {
         // Serve the Bulma version
         return res.sendFile(path.join(__dirname, 'setup/assets/html/desktop/setup.html'));
@@ -254,8 +299,45 @@ app.post('/api/benchmark/bulk-write', (req, res) => {
     insert.finalize();
 });
 
+app.post('/api/setup/create-admin', (req, res) => {
+    const { username, password } = req.body;
 
+    if (!username || !password) {
+        debugLogWriteToFile('Admin creation failed: Username or password not provided.');
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
 
+    // Check if an admin account already exists to prevent creating more than one during setup.
+    db.get('SELECT COUNT(*) as count FROM admin_login', (err, row) => {
+        if (err) {
+            debugLogWriteToFile(`Error checking for existing admin: ${err.message}`);
+            return res.status(500).json({ error: 'Database error while checking for existing admin.' });
+        }
+
+        if (row.count > 0) {
+            debugLogWriteToFile('Admin creation blocked: An admin account already exists.');
+            return res.status(409).json({ error: 'An admin account already exists.' });
+        }
+
+        // Hash the password
+        bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+            if (hashErr) {
+                debugLogWriteToFile(`Bcrypt error: ${hashErr.message}`);
+                return res.status(500).json({ error: 'Failed to hash password.' });
+            }
+
+            const insert = 'INSERT INTO admin_login (username, password) VALUES (?, ?)';
+            db.run(insert, [username, hashedPassword], function(dbErr) {
+                if (dbErr) {
+                    debugLogWriteToFile(`DB Error on admin creation: ${dbErr.message}`);
+                    return res.status(500).json({ error: dbErr.message });
+                }
+                debugLogWriteToFile(`Admin account created successfully with ID: ${this.lastID}`);
+                res.json({ message: 'Admin account created successfully.', id: this.lastID });
+            });
+        });
+    });
+});
 
 
 app.post('/api/benchmark/cleanup', (req, res) => {
@@ -282,6 +364,107 @@ app.get('/api/benchmark/read-all', (req, res) => {
     });
 });
 
+app.post('/api/setup/validate-admin', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        debugLogWriteToFile('Admin validation failed: Username or password not provided.');
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
+
+    const query = 'SELECT * FROM admin_login WHERE username = ?';
+    db.get(query, [username], (err, admin) => {
+        if (err) {
+            debugLogWriteToFile(`DB Error on admin validation: ${err.message}`);
+            return res.status(500).json({ error: 'Database error during validation.' });
+        }
+
+        if (!admin) {
+            debugLogWriteToFile(`Admin validation failed: User '${username}' not found.`);
+            return res.status(404).json({ error: 'Admin user not found.' });
+        }
+
+        bcrypt.compare(password, admin.password, (compareErr, isMatch) => {
+            if (compareErr) {
+                debugLogWriteToFile(`Bcrypt compare error: ${compareErr.message}`);
+                return res.status(500).json({ error: 'Error during password comparison.' });
+            }
+
+            if (isMatch) {
+                res.json({ success: true, message: 'Admin credentials are valid.' });
+            } else {
+                res.status(401).json({ success: false, error: 'Invalid credentials.' });
+            }
+        });
+    });
+});
+
+// Multer configuration for logo uploads
+const logoStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, logoUploadDir);
+    },
+    filename: function (req, file, cb) {
+        // Create a unique filename to avoid overwrites
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: logoStorage,
+    fileFilter: (req, file, cb) => {
+        // Accept only image files
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+}).single('logo_file'); // 'logo_file' is the name of the input field in the form
+
+app.post('/api/setup/configure', upload, (req, res) => {
+    // By placing `upload` here, multer has already processed the request.
+    // req.body is populated with text fields, and req.file has the file.
+
+    const { school_name, school_type, address, organization_hotline, country_code } = req.body;
+    const logo_directory = req.file ? `/assets/images/logos/${req.file.filename}` : null;
+
+    if (!school_name || !country_code) {
+        debugLogWriteToFile('Configuration save failed: School name or country code not provided.');
+        return res.status(400).json({ error: 'School Name and Country Code are required.' });
+    }
+
+    // Check if a configuration already exists.
+    db.get('SELECT COUNT(*) as count FROM configurations', (dbErr, row) => {
+        if (dbErr) {
+            debugLogWriteToFile(`Error checking for existing configuration: ${dbErr.message}`);
+            return res.status(500).json({ error: 'Database error while checking for existing configuration.' });
+        }
+
+        if (row.count > 0) {
+            debugLogWriteToFile('Configuration blocked: A configuration entry already exists.');
+            return res.status(409).json({ error: 'A configuration entry already exists. You cannot create another one.' });
+        }
+
+        const insert = `
+            INSERT INTO configurations (
+                school_name, school_type, address, logo_directory, organization_hotline, country_code
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        const params = [school_name, school_type || null, address || null, logo_directory, organization_hotline || null, country_code];
+
+        db.run(insert, params, function(insertErr) {
+            if (insertErr) {
+                debugLogWriteToFile(`DB Error on configuration creation: ${insertErr.message}`);
+                return res.status(500).json({ error: insertErr.message });
+            }
+            debugLogWriteToFile(`Configuration saved successfully with ID: ${this.lastID}`);
+            res.json({ message: 'Configuration saved successfully.', id: this.lastID });
+        });
+    });
+});
 // Catch-all for 404 Not Found errors
 // This should be the last route handler to catch any unmatched requests.
 app.use((req, res, next) => {

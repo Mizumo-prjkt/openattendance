@@ -1,0 +1,115 @@
+/* Font styling */
+
+
+@font-face {
+    font-family: 'Momo Trust Display';
+    src: url('/shared/etc/fonts/Momo_Trust_Display/MomoTrustDisplay-Regular.ttf') format('truetype') ;
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium Variable';
+    src: url('/shared/etc/fonts/Oxanium/Oxanium-VariableFont_wght.ttf') format('truetype') ;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-Bold.ttf') format('truetype') ;
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-Regular.ttf') format('truetype') ;
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-SemiBold.ttf') format('truetype') ;
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-Medium.ttf') format('truetype') ;
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-Light.ttf') format('truetype') ;
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-ExtraLight.ttf') format('truetype') ;
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Oxanium';
+    src: url('/shared/etc/fonts/Oxanium/static/Oxanium-ExtraBold.ttf') format('truetype') ;
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch Variable';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/StackSansNotch-VariableFont_wght.ttf') format('truetype') ;
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-Bold.ttf') format('truetype') ;
+    font-weight: bold;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-ExtraLight.ttf') format('truetype') ;
+    font-weight: 200;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-Light.ttf') format('truetype') ;
+    font-weight: 300;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-Medium.ttf') format('truetype') ;
+    font-weight: 500;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-Regular.ttf') format('truetype') ;
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Stack Sans Notch';
+    src: url('/shared/etc/fonts/Stack_Sans_Notch/static/StackSansNotch-SemiBold.ttf') format('truetype') ;
+    font-weight: 600;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Tilt Neon';
+    src: url('/shared/etc/fonts/Tilt_Neon/TiltNeon-Regular-VariableFont_XROT,YROT.ttf') format('truetype') ;
+}

@@ -1,0 +1,60 @@
+<!-- Forbidden Page -->
+<!-- A Body template page when a user or any other unauthorized groups tries to access the system -->
+<!-- Since this is a mobile variant, display the forbidden page using framework7 framework --> 
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Forbidden Access</title>
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/forbidden-framework7.css">
+        <link rel="stylesheet" href="/node/framework7/framework7-bundle.min.css">
+
+    </head>
+    <body>
+        <div id="app">
+            <div class="page">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="title unauth-header"><b>Forbidden</b></div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div class="block">
+                        <h1 id="error-title" class="unauth-header">Unauthorized Access</h1>
+                        <p id="error-message" class="unauth-body">You do not have permission to access this page.</p>
+                        <div id="error-code-display" class="error-code">403</div>
+                        <div class="link-area">
+                            <a href="#" class="back-link">Go Back</a>
+                            <!-- You can add more links here, e.g., to the homepage -->
+                        </div>
+                        <div class="link-area2">
+                            <a href="#" class="raw-report">View Raw Response</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="raw-report-card-popup-modal" class="popup popup-card">
+            <div class="page">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <div class="title unauth-header" >Raw Response</div>
+                        <div class="right">
+                            <a href="#" class="link popup-close" style="font-family: 'Tilt Neon', sans-serif ;">Close</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div class="block">
+                    <h3>Raw Response</h3>
+                    <pre id="error-json" class="popup-pre"></pre>
+                </div>
+            </div>
+        </div>
+        <script src="/node/framework7/framework7-bundle.min.js"></script>
+        <script src="/shared/js/forbidden-framework7.js"></script>
+    </body>
+</html>
