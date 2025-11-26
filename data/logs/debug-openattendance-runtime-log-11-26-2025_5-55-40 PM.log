@@ -1,5 +1,0 @@
-Debug Log Created on 11-26-2025 at 5-55-40 PM
-
-[11-26-2025 5:55:40 PM] Debug logging started. Log file: /home/miku/Projects/openattendance/data/logs/debug-openattendance-runtime-log-11-26-2025_5-55-40 PM.log
-[11-26-2025 5:55:40 PM] Uncaught Exception: write EIO
-[11-26-2025 5:55:40 PM] Setup process exiting with code: 1
