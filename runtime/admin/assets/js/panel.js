@@ -1,23 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const logoutBtn = document.getElementById('logout-btn');
     const charts = []; // Array to hold all our chart instances
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/admin/logout', { method: 'POST' });
-                if (response.ok) {
-                    // Redirect to the login page after successful logout
-                    window.location.href = '/admin-login';
-                } else {
-                    alert('Logout failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('An error occurred during logout.');
-            }
-        });
-    }
 
     try {
         const response = await fetch('/api/admin/dashboard-stats');

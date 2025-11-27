@@ -1,13 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="has-background-light has-navbar-fixed-top">
+<html lang="en" class="has-navbar-fixed-top">
     <head>
         <title>Admin Dashboard</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" >
         <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <!-- For some reason, the UI would bugged out if custom fonts are loaded -->
+        <!-- I'll rule this as a font issue @Mizumo-prjkt -->
+        <!-- <link rel="stylesheet" href="/shared/css/font-thme.css"> -->
         <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
         <link rel="stylesheet" href="/admin/assets/css/panel.css">
         <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+
     </head>
     <body>
         <!-- Navbar will be injected here -->
@@ -20,84 +25,82 @@
             </div>
 
             <!-- Main Content -->
-           
-                <main class="column is-10 p-5">
-                    <div class="container is-fluid" id="mainpst">
-                        <h1 class="title">Dashboard</h1>
-                        <h2 class="subtitle">Welcome, Administrator! Here's a summary of system activity.</h2>
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Dashboard</h1>
+                    <h2 class="subtitle">Welcome, Administrator! Here's a summary of system activity.</h2>
 
-                        <!-- Summary Tiles -->
-                        <div class="tile is-ancestor has-text-centered">
-                            <div class="tile is-parent is-4">
-                                <article class="tile is-child box notification is-primary"><p class="title" id="total-students">1,234</p><p class="subtitle">Total Students</p></article>
-                            </div>
-                            <div class="tile is-parent is-4">
-                                <article class="tile is-child box notification is-info"><p class="title" id="staff-accounts">56</p><p class="subtitle">Staff Accounts</p></article>
-                            </div>
-                            <div class="tile is-parent is-4">
-                                <article class="tile is-child box notification is-warning"><p class="title" id="todays-attendance">789</p><p class="subtitle">Today's Attendance</p></article>
-                            </div>
+                    <!-- Summary Tiles -->
+                    <div class="tile is-ancestor has-text-centered">
+                        <div class="tile is-parent is-4">
+                            <article class="tile is-child box notification is-primary"><p class="title" id="total-students">1,234</p><p class="subtitle">Total Students</p></article>
                         </div>
+                        <div class="tile is-parent is-4">
+                            <article class="tile is-child box notification is-info"><p class="title" id="staff-accounts">56</p><p class="subtitle">Staff Accounts</p></article>
+                        </div>
+                        <div class="tile is-parent is-4">
+                            <article class="tile is-child box notification is-warning"><p class="title" id="todays-attendance">789</p><p class="subtitle">Today's Attendance</p></article>
+                        </div>
+                    </div>
 
-                        <!-- Charts Section -->
-                        <div class="columns is-multiline mt-5">
-                            <!-- Weekly Trend Chart -->
-                            <div class="column is-two-thirds">
-                                <div class="card">
-                                    <header class="card-header">
-                                        <p class="card-header-title">
-                                            Weekly Attendance Trend
-                                        </p>
-                                    </header>
-                                    <div class="card-content">
-                                        <canvas id="attendance-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Daily Ratio Chart -->
-                            <div class="column is-one-third">
-                                <div class="card">
-                                    <header class="card-header">
-                                        <p class="card-header-title">
-                                            Today's Attendance Ratio
-                                        </p>
-                                    </header>
-                                    <div class="card-content">
-                                        <canvas id="ratio-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Monthly Overview Chart -->
-                            <div class="column is-full">
-                                <div class="card">
-                                    <header class="card-header">
-                                        <p class="card-header-title">
-                                            Monthly Overview
-                                        </p>
-                                    </header>
-                                    <div class="card-content">
-                                        <canvas id="monthly-overview-chart"></canvas>
-                                    </div>
+                    <!-- Charts Section -->
+                    <div class="columns is-multiline mt-5">
+                        <!-- Weekly Trend Chart -->
+                        <div class="column is-two-thirds">
+                            <div class="card">
+                                <header class="card-header">
+                                    <p class="card-header-title">
+                                        Weekly Attendance Trend
+                                    </p>
+                                </header>
+                                <div class="card-content">
+                                    <canvas id="attendance-chart"></canvas>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Recent Activity Section -->
-                        <div class="card mt-5">
-                            <header class="card-header">
-                                <p class="card-header-title">
-                                    Recent System Events
-                                </p>
-                            </header>
-                            <div class="card-content">
-                                <div class="content" id="recent-logs-content">
-                                    <p>Loading recent events...</p>
+                        <!-- Daily Ratio Chart -->
+                        <div class="column is-one-third">
+                            <div class="card">
+                                <header class="card-header">
+                                    <p class="card-header-title">
+                                        Today's Attendance Ratio
+                                    </p>
+                                </header>
+                                <div class="card-content">
+                                    <canvas id="ratio-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Monthly Overview Chart -->
+                        <div class="column is-full">
+                            <div class="card">
+                                <header class="card-header">
+                                    <p class="card-header-title">
+                                        Monthly Overview
+                                    </p>
+                                </header>
+                                <div class="card-content">
+                                    <canvas id="monthly-overview-chart"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </main>
-            
+
+                    <!-- Recent Activity Section -->
+                    <div class="card mt-5">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                Recent System Events
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content" id="recent-logs-content">
+                                <p>Loading recent events...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </body>
     <script src="/admin/assets/js/components.js"></script>

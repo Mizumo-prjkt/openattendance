@@ -1,5 +1,8 @@
 // OpenAttendance JavaScript code for Setup
 // License: 
+
+// Load environment variables from .env file
+require('dotenv').config();
 // This is a setup file for the project
 // Note that the page root is on setup directory, and the port should be different
 // Than the runtime to avoid conflicts and stupidity of the end user
@@ -19,6 +22,18 @@ const PORT = 3999; // Our setup port
 const crypto = require('crypto');
 const mkdirp = require('mkdirp');
 let debugMode = false;
+
+// Create a directory for staff profile image uploads if it doesn't exist
+const staffImageUploadDir = path.join(__dirname, 'runtime/shared/images/staff_profiles');
+if (!fs.existsSync(staffImageUploadDir)) {
+    fs.mkdirSync(staffImageUploadDir, { recursive: true });
+}
+// Create a directory for school logo uploads
+const schoolLogoUploadDir = path.join(__dirname, 'runtime/shared/images/school_logos');
+if (!fs.existsSync(schoolLogoUploadDir)) {
+    fs.mkdirSync(schoolLogoUploadDir, { recursive: true });
+}
+
 let logFilePath;
 let argenv = process.argv.slice(2);
 
@@ -149,6 +164,7 @@ app.use('/shared', express.static(path.join(__dirname, 'runtime', 'shared')));
 app.use('/admin/assets', express.static(path.join(__dirname, 'runtime', 'admin', 'assets')));
 app.use('/client/assets', express.static(path.join(__dirname, 'runtime', 'client', 'assets')));
 app.use('/client', express.static(path.join(__dirname, 'runtime', 'client'))); // Serve client-side JS
+app.use('/shared/images', express.static(path.join(__dirname, 'runtime/shared/images')));
 
 
 
@@ -226,9 +242,57 @@ app.get('/admin-login', (req, res) => {
     res.sendFile(path.join(__dirname, 'runtime/admin/index.html'));
 })
 
+app.get('/admin-about', (req, res) => {
+    if(req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/about.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+})
+
 app.get('/admin-staff', (req, res) => {
     if (req.session.adminId) {
         res.sendFile(path.join(__dirname, 'runtime/admin/staff.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-students', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/students.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-attendance', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/attendance.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-excuses', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/excuses.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-configuration', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/configuration.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-logs', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/system-logs.html'));
     } else {
         res.redirect('/admin-login');
     }
@@ -255,6 +319,71 @@ app.get('/api/admin/accounts', (req, res) => {
     });
 });
 
+// --- System Configuration API ---
+
+// Multer configuration for the school logo
+const schoolLogoStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, schoolLogoUploadDir);
+    },
+    filename: function (req, file, cb) {
+        // Overwrite the logo with a consistent name to avoid clutter
+        cb(null, 'school-logo' + path.extname(file.originalname));
+    }
+});
+const logoUpload = multer({ storage: schoolLogoStorage }).single('school_logo_upload');
+
+// GET /api/admin/configuration - Retrieve the current system configuration
+app.get('/api/admin/configuration', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    // There should only ever be one configuration row, with config_id = 1
+    const sql = 'SELECT * FROM configurations WHERE config_id = 1';
+    db.get(sql, [], (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error retrieving configuration." });
+        }
+        res.json(row || {}); // Return empty object if no config is set yet
+    });
+});
+
+// POST /api/admin/configuration - Create or update the system configuration
+app.post('/api/admin/configuration', logoUpload, (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { school_name, school_type, address, organization_hotline, country_code } = req.body;
+    const logo_path = req.file ? `/shared/images/school_logos/${req.file.filename}` : null;
+
+    if (!school_name || !country_code) {
+        return res.status(400).json({ error: "School Name and Country Code are required." });
+    }
+
+    // UPSERT logic: Update if exists, Insert if not.
+    const sql = `
+        INSERT INTO configurations (config_id, school_name, school_type, address, organization_hotline, country_code, logo_directory, created_config_date)
+        VALUES (1, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(config_id) DO UPDATE SET
+            school_name = excluded.school_name,
+            school_type = excluded.school_type,
+            address = excluded.address,
+            organization_hotline = excluded.organization_hotline,
+            country_code = excluded.country_code,
+            logo_directory = COALESCE(excluded.logo_directory, configurations.logo_directory)
+    `;
+
+    const params = [school_name, school_type, address, organization_hotline, country_code, logo_path];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            return res.status(500).json({ error: "Database error saving configuration.", details: err.message });
+        }
+        res.status(200).json({ message: "Configuration saved successfully." });
+    });
+});
 app.get('/api/admin/accounts/:id', (req, res) => {
     if (!req.session.adminId) {
         return res.status(401).json({ error: "Administrator not authenticated." });
@@ -342,6 +471,349 @@ app.delete('/api/admin/accounts/:id', (req, res) => {
         res.json({ message: "Admin account deleted successfully." });
     });
 });
+
+// - System Logs api
+
+app.get('/api/admin/logs', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { page = 1, limit = 25, level, source } = req.query;
+    const offset = (page - 1) * limit;
+
+    let whereClauses = [];
+    let params = [];
+
+    if (level) {
+        whereClauses.push('level = ?');
+        params.push(level);
+    }
+    if (source) {
+        whereClauses.push('source = ?');
+        params.push(source);
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const countSql = `SELECT COUNT(*) as count FROM system_logs ${whereSql}`;
+    const dataSql = `SELECT * FROM system_logs ${whereSql} ORDER BY timestamp DESC LIMIT ? OFFSET ?`;
+
+    db.get(countSql, params, (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error counting logs.", details: err.message });
+        }
+
+        const totalLogs = row.count;
+        const totalPages = Math.ceil(totalLogs / limit);
+
+        db.all(dataSql, [...params, limit, offset], (err, rows) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error retrieving logs.", details: err.message });
+            }
+            res.json({
+                logs: rows,
+                pagination: {
+                    currentPage: parseInt(page, 10),
+                    totalPages: totalPages,
+                    totalLogs: totalLogs,
+                    limit: parseInt(limit, 10)
+                }
+            });
+        });
+    });
+});
+
+// DELETE /api/admin/logs - Clear all logs
+app.delete('/api/admin/logs', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    db.run('DELETE FROM system_logs', function(err) {
+        if (err) return res.status(500).json({ error: "Database error clearing logs.", details: err.message });
+        // Also reset the autoincrement counter for a clean slate
+        db.run("DELETE FROM sqlite_sequence WHERE name='system_logs'", () => {
+            res.json({ message: `All system logs cleared successfully. ${this.changes} logs were deleted.` });
+        });
+    });
+});
+
+// --- Staff Accounts API ---
+
+// Multer configuration for staff profile images
+const staffImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, staffImageUploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'staff-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const staffUpload = multer({ storage: staffImageStorage }).single('profile_image');
+
+// GET /api/admin/staff - Retrieve all staff accounts
+app.get('/api/admin/staff', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const sql = `
+        SELECT s.id, s.staff_id, s.name, s.email_address, s.staff_type, s.adviser_unit, s.profile_image_path, s.active, sl.username 
+        FROM staff_accounts s 
+        LEFT JOIN staff_login sl ON s.staff_id = sl.staff_id 
+        ORDER BY s.name ASC`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error retrieving staff accounts." });
+        res.json(rows || []);
+    });
+});
+
+// POST /api/admin/staff - Create a new staff account
+app.post('/api/admin/staff', staffUpload, async (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { staff_id, name, email_address, staff_type, adviser_unit, username, password } = req.body;
+    const profile_image_path = req.file ? `/client/images/staff_profiles/${req.file.filename}` : null;
+
+    if (!staff_id || !name || !staff_type || !username || !password) {
+        return res.status(400).json({ error: "Staff ID, Name, Type, Username, and Password are required." });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        db.serialize(() => {
+            db.run("BEGIN TRANSACTION");
+
+            const staffSql = `INSERT INTO staff_accounts (staff_id, name, email_address, staff_type, adviser_unit, profile_image_path) VALUES (?, ?, ?, ?, ?, ?)`;
+            db.run(staffSql, [staff_id, name, email_address, staff_type, adviser_unit, profile_image_path], function(err) {
+                if (err) {
+                    db.run("ROLLBACK");
+                    if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'Staff ID or Email already exists.' });
+                    return res.status(500).json({ error: "Database error creating staff profile." });
+                }
+
+                const loginSql = `INSERT INTO staff_login (staff_id, username, password) VALUES (?, ?, ?)`;
+                db.run(loginSql, [staff_id, username, hashedPassword], function(err) {
+                    if (err) {
+                        db.run("ROLLBACK");
+                        if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'Login username is already taken.' });
+                        return res.status(500).json({ error: "Database error creating staff login." });
+                    }
+
+                    db.run("COMMIT", (err) => {
+                        if (err) return res.status(500).json({ error: "Failed to commit transaction." });
+                        res.status(201).json({ message: "Staff account created successfully." });
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to process password." });
+    }
+});
+
+// PUT /api/admin/staff/:id - Update a staff account
+app.put('/api/admin/staff/:id', async (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params; // This is the staff_accounts.id
+    const { staff_id, name, email_address, adviser_unit, password } = req.body;
+
+    // Update profile info
+    const profileSql = `UPDATE staff_accounts SET staff_id = ?, name = ?, email_address = ?, adviser_unit = ? WHERE id = ?`;
+    db.run(profileSql, [staff_id, name, email_address, adviser_unit, id], async function(err) {
+        if (err) return res.status(500).json({ error: "Database error updating staff profile." });
+
+        // If a new password was provided, update the login table
+        if (password) {
+            try {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const loginSql = `UPDATE staff_login SET password = ? WHERE staff_id = ?`;
+                db.run(loginSql, [hashedPassword, staff_id], (err) => {
+                    if (err) return res.status(500).json({ error: "Database error updating password." });
+                    res.json({ message: "Staff account and password updated successfully." });
+                });
+            } catch (error) {
+                return res.status(500).json({ error: "Failed to process new password." });
+            }
+        } else {
+            res.json({ message: "Staff account updated successfully." });
+        }
+    });
+});
+
+// DELETE /api/admin/staff/:id - Delete a staff account
+app.delete('/api/admin/staff/:id', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    // Deleting from staff_accounts will cascade and delete from staff_login
+    db.run('DELETE FROM staff_accounts WHERE id = ?', [id], function(err) {
+        if (err) return res.status(500).json({ error: "Database error deleting staff account." });
+        if (this.changes === 0) return res.status(404).json({ error: "Staff account not found." });
+        res.json({ message: "Staff account deleted successfully." });
+    });
+});
+
+// --- Student Records API ---
+
+// Multer configuration for student profile images
+const studentImageUploadDir = path.join(__dirname, 'runtime/shared/images/student_profiles');
+const studentImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, studentImageUploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'student-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const studentUpload = multer({ storage: studentImageStorage }).single('profile_image');
+
+// GET /api/admin/students - Retrieve all student records
+app.get('/api/admin/students', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const sql = `SELECT id, student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, profile_image_path, classroom_section FROM students ORDER BY last_name, first_name ASC`;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error retrieving student records." });
+        res.json(rows || []);
+    });
+});
+
+// POST /api/admin/students - Create a new student record
+app.post('/api/admin/students', studentUpload, (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, classroom_section } = req.body;
+    const profile_image_path = req.file ? `/shared/images/student_profiles/${req.file.filename}` : null;
+
+    if (!student_id || !first_name) {
+        return res.status(400).json({ error: "Student ID and First Name are required." });
+    }
+
+    const sql = `INSERT INTO students (student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, profile_image_path, classroom_section) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, profile_image_path, classroom_section];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'A student with this Student ID already exists.' });
+            return res.status(500).json({ error: "Database error creating student record." });
+        }
+        res.status(201).json({ message: "Student record created successfully.", id: this.lastID });
+    });
+});
+
+// PUT /api/admin/students/:id - Update a student record
+app.put('/api/admin/students/:id', studentUpload, (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    const { student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, classroom_section } = req.body;
+    const profile_image_path = req.file ? `/shared/images/student_profiles/${req.file.filename}` : null;
+
+    // If a new image is uploaded, we update the path. Otherwise, we don't touch it.
+    let sql = `UPDATE students SET student_id = ?, first_name = ?, middle_name = ?, last_name = ?, phone_number = ?, address = ?, emergency_contact_name = ?, emergency_contact_phone = ?, emergency_contact_relationship = ?, classroom_section = ?`;
+    let params = [student_id, first_name, middle_name, last_name, phone_number, address, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, classroom_section];
+
+    if (profile_image_path) {
+        sql += `, profile_image_path = ?`;
+        params.push(profile_image_path);
+    }
+
+    sql += ` WHERE id = ?`;
+    params.push(id);
+
+    db.run(sql, params, function(err) {
+        if (err) return res.status(500).json({ error: "Database error updating student record." });
+        res.json({ message: "Student record updated successfully." });
+    });
+});
+
+// DELETE /api/admin/students/:id - Delete a student record
+app.delete('/api/admin/students/:id', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    db.run('DELETE FROM students WHERE id = ?', [id], function(err) {
+        if (err) return res.status(500).json({ error: "Database error deleting student record. This may be due to existing attendance records linked to this student." });
+        if (this.changes === 0) return res.status(404).json({ error: "Student not found." });
+        res.json({ message: "Student record deleted successfully." });
+    });
+});
+
+// --- Attendance Logs API ---
+app.get('/api/admin/attendance-logs', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { dateFrom, dateTo, status, studentSearch } = req.query;
+
+    let whereClauses = [];
+    let params = [];
+
+    if (dateFrom) {
+        whereClauses.push("log_date >= ?");
+        params.push(dateFrom);
+    }
+    if (dateTo) {
+        whereClauses.push("log_date <= ?");
+        params.push(dateTo);
+    }
+    if (status) {
+        whereClauses.push("status = ?");
+        params.push(status);
+    }
+    if (studentSearch) {
+        whereClauses.push("(s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ?)");
+        const searchTerm = `%${studentSearch}%`;
+        params.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const sql = `
+        SELECT 
+            unified_logs.log_id,
+            unified_logs.log_date,
+            unified_logs.status,
+            unified_logs.time_in,
+            unified_logs.time_out,
+            unified_logs.reason,
+            s.first_name || ' ' || s.last_name as student_name,
+            s.student_id,
+            st.name as logged_by
+        FROM (
+            SELECT 'p' || present_id as log_id, date(p.time_in, 'localtime') as log_date, 'Present' as status, strftime('%H:%M', p.time_in, 'localtime') as time_in, strftime('%H:%M', p.time_out, 'localtime') as time_out, p.student_id, p.staff_id, 'N/A' as reason FROM present p
+            UNION ALL
+            SELECT 'a' || absent_id as log_id, date(a.absent_datetime, 'localtime') as log_date, 'Absent' as status, NULL as time_in, NULL as time_out, a.student_id, a.staff_id, a.reason FROM absent a
+            UNION ALL
+            SELECT 'e' || excused_id as log_id, date(e.request_datetime, 'localtime') as log_date, 'Excused' as status, NULL as time_in, NULL as time_out, e.student_id, e.staff_id, e.reason FROM excused e WHERE e.result = 'excused'
+        ) as unified_logs
+        JOIN students s ON s.student_id = unified_logs.student_id
+        LEFT JOIN staff_accounts st ON st.staff_id = unified_logs.staff_id
+        ${whereSql}
+        ORDER BY unified_logs.log_date DESC, unified_logs.time_in DESC
+        LIMIT 100; -- Add a limit to prevent overwhelming the browser with too much data
+    `;
+
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            console.error("Attendance log query error:", err.message);
+            return res.status(500).json({ error: "Database error retrieving attendance logs.", details: err.message });
+        }
+        res.json(rows || []);
+    });
+});
+
+
+
+
+
+
+
 
 app.post('/api/ntp', async (req, res) => {
     debugLogWriteToFile("NTP API called");
@@ -603,6 +1075,146 @@ app.delete('/api/admin/logs', (req, res) => {
         db.run("DELETE FROM sqlite_sequence WHERE name='system_logs'", () => {
             res.json({ message: `All system logs cleared successfully. ${this.changes} logs were deleted.` });
         });
+    });
+});
+
+// GET /api/admin/excuses - Retrieve excuse requests with filtering
+app.get('/api/admin/excuses', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { status } = req.query;
+    let sql = `
+        SELECT 
+            e.excused_id, e.student_id, e.staff_id, e.reason, e.request_datetime, e.verdict_datetime, e.result,
+            s.first_name || ' ' || s.last_name as student_name
+        FROM excused e
+        JOIN students s ON e.student_id = s.student_id
+    `;
+    let params = [];
+    if (status) {
+        sql += ' WHERE e.result = ?';
+        params.push(status);
+    } else {
+        sql += ' WHERE e.result IS NULL'; // Only pending if result is NULL
+    }
+    sql += ' ORDER BY e.request_datetime DESC';
+
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            console.error("Excuse query error:", err.message);
+            return res.status(500).json({ error: "Database error retrieving excuse requests.", details: err.message });
+        }
+        res.json(rows || []);
+    });
+});
+
+// POST /api/admin/excuses/:id/:action - Approve or reject an excuse request
+app.post('/api/admin/excuses/:id/:action', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { id, action } = req.params;
+    const staffId = 'admin'; // Replace with actual staff ID from session
+    const verdictTime = new Date().toISOString();
+
+    let result;
+    if (action === 'approve') {
+        result = 'excused';
+    } else if (action === 'reject') {
+        result = 'not_excused';
+    } else {
+        return res.status(400).json({ error: "Invalid action. Must be 'approve' or 'reject'." });
+    }
+
+    const sql = `
+        UPDATE excused 
+        SET result = ?, verdict_datetime = ?, staff_id = ?
+        WHERE excused_id = ?
+    `;
+    db.run(sql, [result, verdictTime, staffId, id], function(err) {
+        if (err) {
+            console.error("Excuse update error:", err.message);
+            return res.status(500).json({ error: `Database error while processing excuse request.`, details: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: "Excuse request not found." });
+        }
+        res.json({ message: `Excuse request ${action}ed successfully.` });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+// GET /api/admin/sms-configuration - Retrieve non-sensitive SMS settings
+app.get('/api/admin/sms-configuration', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    // Read from the database
+    const sql = 'SELECT provider_name, sender_name FROM sms_provider_settings WHERE id = 1';
+    db.get(sql, [], (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error retrieving SMS configuration." });
+        }
+        
+        const isApiKeySet = !!process.env.SMS_API_KEY;
+
+        res.json({
+            provider_name: row?.provider_name || 'semaphore',
+            sender_name: row?.sender_name || '',
+            is_api_key_set: isApiKeySet
+        });
+    });
+});
+
+// POST /api/admin/sms-configuration - Save SMS settings
+app.post('/api/admin/sms-configuration', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { api_key, sender_name } = req.body;
+
+    // --- Update .env file ---
+    if (api_key) {
+        const envPath = path.join(__dirname, '.env');
+        let envContent = '';
+        if (fs.existsSync(envPath)) {
+            envContent = fs.readFileSync(envPath, 'utf8');
+        }
+
+        const lines = envContent.split('\n');
+        const apiKeyIndex = lines.findIndex(line => line.startsWith('SMS_API_KEY='));
+
+        if (apiKeyIndex !== -1) {
+            lines[apiKeyIndex] = `SMS_API_KEY="${api_key}"`;
+        } else {
+            lines.push(`SMS_API_KEY="${api_key}"`);
+        }
+        fs.writeFileSync(envPath, lines.join('\n'));
+        process.env.SMS_API_KEY = api_key; // Update running process
+    }
+
+    // --- Update database ---
+    const sql = `INSERT INTO sms_provider_settings (id, provider_name, sender_name, updated_at) VALUES (1, 'semaphore', ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(id) DO UPDATE SET sender_name = excluded.sender_name, updated_at = CURRENT_TIMESTAMP`;
+    db.run(sql, [sender_name], (err) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error saving SMS settings." });
+        }
+        res.status(200).json({ message: "SMS configuration saved successfully." });
     });
 });
 

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>System Logs</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <div class="is-flex is-justify-content-space-between is-align-items-center">
+                        <div>
+                            <h1 class="title">System Logs</h1>
+                            <h2 class="subtitle">Review system events, errors, and debug information.</h2>
+                        </div>
+                        <button class="button is-danger" id="clear-logs-btn">
+                            <span class="icon"><i class="fas fa-trash-alt"></i></span>
+                            <span>Clear All Logs</span>
+                        </button>
+                    </div>
+
+                    <!-- Filtering Controls -->
+                    <div class="box">
+                        <div class="columns is-vcentered">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Log Level</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            <select id="level-filter">
+                                                <option value="">All Levels</option>
+                                                <option value="INFO">Info</option>
+                                                <option value="DEBUG">Debug</option>
+                                                <option value="WARN">Warning</option>
+                                                <option value="ERROR">Error</option>
+                                                <option value="FATAL">Fatal</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Source</label>
+                                    <div class="control">
+                                        <input class="input" type="text" id="source-filter" placeholder="e.g., api-login, runtime">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-narrow">
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-link" id="filter-logs-btn" style="margin-top: 32px;">Filter</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs Table -->
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-striped is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Level</th>
+                                    <th>Source</th>
+                                    <th>Message</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <!-- Mockup Data -->
+                                <tr>
+                                    <td>2025-11-27 04:20:00 PM</td>
+                                    <td><span class="tag is-danger">ERROR</span></td>
+                                    <td>api-login</td>
+                                    <td>Failed login attempt for user 'admin'...</td>
+                                    <td><button class="button is-small is-info">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>2025-11-27 04:19:58 PM</td>
+                                    <td><span class="tag is-info">INFO</span></td>
+                                    <td>runtime</td>
+                                    <td>Server started successfully on port 3999.</td>
+                                    <td><button class="button is-small is-info">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+                        <a class="pagination-previous" disabled>Previous</a>
+                        <a class="pagination-next">Next page</a>
+                        <ul class="pagination-list">
+                            <li><a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a></li>
+                            <li><a class="pagination-link" aria-label="Goto page 2">2</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </main>
+        </div>
+
+        <!-- Log Detail Modal -->
+        <div class="modal" id="log-detail-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Log Details</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="content">
+                        <p><strong>Timestamp:</strong> <span id="detail-timestamp"></span></p>
+                        <p><strong>Level:</strong> <span id="detail-level"></span></p>
+                        <p><strong>Source:</strong> <span id="detail-source"></span></p>
+                        <p><strong>Message:</strong></p>
+                        <div class="box has-background-light"><span id="detail-message"></span></div>
+                        <div id="detail-extra-container" class="is-hidden">
+                            <p><strong>Details / Stack Trace:</strong></p>
+                            <pre id="detail-extra" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/system-logs.js"></script>
+</html>

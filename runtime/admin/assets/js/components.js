@@ -26,14 +26,34 @@ document.addEventListener('DOMContentLoaded', () => {
     ]).then(() => {
         // Hamburger menu toggle for mobile
         const burger = document.querySelector('.navbar-burger');
+        const navMenu = document.querySelector('.navbar-menu'); // Target the navbar menu
         const sidebar = document.querySelector('#sidebar-placeholder');
 
-        if (burger && sidebar) {
+        if (burger && navMenu && sidebar) {
             burger.addEventListener('click', () => {
                 burger.classList.toggle('is-active');
+                navMenu.classList.toggle('is-active'); // Also toggle the navbar menu
                 sidebar.classList.toggle('is-hidden-touch');
             });
         }
+
+        // Logout button functionality (moved here to ensure button exists)
+        const logoutBtns = document.querySelectorAll('.logout-button');
+        logoutBtns.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/admin/logout', { method: 'POST' });
+                    if (response.ok) {
+                        window.location.href = '/admin-login';
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('An error occurred during logout.');
+                }
+            });
+        });
 
         // Set active link in sidebar
         const sidebarLinks = document.querySelectorAll('#sidebar-placeholder a');

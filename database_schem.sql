@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS students (
    emergency_contact_relationship TEXT CHECK (
        emergency_contact_relationship IN ('parent', 'guardian')
    ),                                    -- optional, locked to parent/guardian
-   student_id TEXT NOT NULL UNIQUE       -- required, must be unique
+   student_id TEXT NOT NULL UNIQUE,      -- required, must be unique
+   profile_image_path TEXT,              -- optional, path to student's profile image
+   classroom_section TEXT                -- optional, e.g., "Grade 10 - Section B"
 );
 
 
@@ -139,4 +141,12 @@ CREATE TABLE IF NOT EXISTS system_logs (
     message TEXT NOT NULL,
     source TEXT, -- e.g., 'setup', 'runtime', 'api-login'
     details TEXT -- For stack traces or JSON context
+);
+
+-- SMS Provider Settings
+CREATE TABLE IF NOT EXISTS sms_provider_settings (
+    id INTEGER PRIMARY KEY CHECK (id = 1), -- Ensures only one row can exist
+    provider_name TEXT NOT NULL,           -- e.g., 'semaphore'
+    sender_name TEXT,                      -- The name that appears as the sender
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

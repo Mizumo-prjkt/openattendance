@@ -3,7 +3,9 @@
 │   ├── images
 │   │   ├── student
 │   │   └── web
-│   └── logs
+│   ├── logs
+│   └── theorems
+│       └── cropperjs_implementation.md
 ├── database
 │   └── main.db
 ├── database-schema-sqlite3.txt
@@ -17,18 +19,32 @@
 ├── run.sh
 ├── runtime
 │   ├── admin
+│   │   ├── _navbar.html
+│   │   ├── _sidebar.html
 │   │   ├── assets
 │   │   │   ├── css
 │   │   │   │   ├── index.css
+│   │   │   │   ├── main-elem.css
 │   │   │   │   └── panel.css
 │   │   │   ├── images
 │   │   │   └── js
 │   │   │       ├── admin-auth.js
 │   │   │       ├── admin-login-ui.js
 │   │   │       ├── admin-login.js
-│   │   │       └── panel.js
+│   │   │       ├── attendance.js
+│   │   │       ├── components.js
+│   │   │       ├── configuration.js
+│   │   │       ├── panel.js
+│   │   │       ├── staff.js
+│   │   │       ├── students.js
+│   │   │       └── system-logs.js
+│   │   ├── attendance.html
+│   │   ├── configuration.html
 │   │   ├── home.html
-│   │   └── index.html
+│   │   ├── index.html
+│   │   ├── staff.html
+│   │   ├── students.html
+│   │   └── system-logs.html
 │   ├── client
 │   │   ├── assets
 │   │   │   ├── css
@@ -90,6 +106,15 @@
 │       │   └── mobile
 │       │       └── forbidden.html
 │       ├── images
+│       │   ├── school_logos
+│       │   │   └── school-logo.webp
+│       │   ├── staff_profiles
+│       │   └── student_profiles
+│       │       ├── student-1764218953203-233308548.png
+│       │       ├── student-1764219293350-250258450.jpg
+│       │       ├── student-1764220272297-581583649.png
+│       │       ├── student-1764222654142-628268720.png
+│       │       └── student-1764233663226-397254464.png
 │       ├── index.md
 │       └── js
 │           ├── auth.js
@@ -180,4 +205,4 @@
 ├── table_column-list.txt
 └── table_schem.md
 
-63 directories, 118 files
+67 directories, 139 files

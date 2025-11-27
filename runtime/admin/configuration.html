@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>System Configuration</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">System Configuration</h1>
+                    <h2 class="subtitle">Manage general school and system settings.</h2>
+
+                    <div class="tabs is-boxed">
+                        <ul>
+                            <li class="is-active" data-tab="school-config"><a><span class="icon is-small"><i class="fas fa-school"></i></span><span>School</span></a></li>
+                            <li data-tab="sms-config"><a><span class="icon is-small"><i class="fas fa-comment-dots"></i></span><span>SMS Provider</span></a></li>
+                        </ul>
+                    </div>
+
+                    <!-- School Configuration Tab -->
+                    <div id="school-config" class="tab-pane is-active">
+                        <div class="box">
+                            <form id="config-form">
+                                <!-- School Name -->
+                                <div class="field">
+                                    <label class="label">School Name</label>
+                                    <div class="control">
+                                        <input class="input" type="text" id="school-name" placeholder="e.g., OpenAttendance National High School" required>
+                                    </div>
+                                </div>
+
+                                <!-- School Type -->
+                                <div class="field">
+                                    <label class="label">School Type</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            <select id="school-type">
+                                                <option value="">Select type...</option>
+                                                <option value="public">Public</option>
+                                                <option value="private">Private</option>
+                                                <option value="charter">Charter</option>
+                                                <option value="international">International</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="field">
+                                    <label class="label">School Address</label>
+                                    <div class="control">
+                                        <textarea class="textarea" id="school-address" placeholder="123 Education Lane, Knowledge City"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Organization Hotline -->
+                                <div class="field">
+                                    <label class="label">Organization Hotline</label>
+                                    <div class="control">
+                                        <input class="input" type="tel" id="org-hotline" placeholder="+1-800-555-1234">
+                                    </div>
+                                </div>
+
+                                <!-- Country Code -->
+                                <div class="field">
+                                    <label class="label">Country Code</label>
+                                    <div class="control">
+                                        <input class="input" type="text" id="country-code" placeholder="e.g., PH, US" required>
+                                    </div>
+                                    <p class="help">Use ISO 3166-1 alpha-2 country codes. <a href="https://en.wikipedia.org/wiki/ISO_3166-1#Codes" rel="noopener noreferrer" target="_blank">What is my nation's code?</a></p>
+                                </div>
+
+                                <!-- School Logo -->
+                                <div class="field">
+                                    <label class="label">School Logo</label>
+                                    <div class="columns is-vcentered">
+                                        <div class="column is-narrow">
+                                            <figure class="image is-96x96">
+                                                <img id="logo-preview" src="https://bulma.io/images/placeholders/128x128.png" alt="School logo preview">
+                                            </figure>
+                                        </div>
+                                        <div class="column">
+                                            <div class="file has-name">
+                                                <label class="file-label">
+                                                    <input class="file-input" type="file" name="school-logo-upload" id="school-logo-upload">
+                                                    <span class="file-cta"><span class="file-icon"><i class="fas fa-upload"></i></span><span class="file-label">Choose a file…</span></span>
+                                                    <span class="file-name" id="logo-file-name">No file selected</span>
+                                                </label>
+                                            </div>
+                                            <p class="help">Leave empty to keep the current logo. Best results with a square image.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="field"><div class="control"><button class="button is-primary" id="save-config-btn">Save School Configuration</button></div></div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- SMS Configuration Tab -->
+                    <div id="sms-config" class="tab-pane" style="display: none;">
+                        <div class="box">
+                            <form id="sms-config-form">
+                                <div class="notification is-info is-light">
+                                    These settings are stored securely in the server's environment file (`.env`) and are not directly accessible from the database.
+                                </div>
+                                <div class="field">
+                                    <label class="label">SMS Provider</label>
+                                    <div class="control"><input class="input" type="text" value="Semaphore" disabled></div>
+                                    <p class="help">Currently, only Semaphore is supported.</p>
+                                </div>
+                                <div class="field">
+                                    <label class="label">API Key</label>
+                                    <div class="control"><input class="input" type="password" id="sms-api-key" placeholder="Leave blank to keep current key"></div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Sender Name</label>
+                                    <div class="control"><input class="input" type="text" id="sms-sender-name" placeholder="e.g., OpenAttend"></div>
+                                    <p class="help">The name that appears as the sender of the SMS (max 11 characters).</p>
+                                </div>
+                                <hr>
+                                <div class="field"><div class="control"><button class="button is-primary" id="save-sms-config-btn">Save SMS Configuration</button></div></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/configuration.js"></script>
+</html>

@@ -1,17 +1,25 @@
-<aside class="menu p-4 has-background-white is-fullheight">
-    <p class="menu-label">General</p>
+<aside class="menu p-4 is-fullheight">
+    <p class="menu-label"><i class="fa-solid fa-house-medical"></i>General</p>
     <ul class="menu-list">
-        <li><a href="/admin-panel">Dashboard</a></li>
+        <li><a href="/admin-panel"><span class="fa-solid fa-table-columns"></span>Dashboard</a></li>
     </ul>
-    <p class="menu-label">Management</p>
+    <p class="menu-label"><i class="fa-solid fa-list-check"></i>Management</p>
     <ul class="menu-list">
-        <li><a href="/admin-staff">Staff Accounts</a></li>
-        <li><a>Student Records</a></li>
-        <li><a>Attendance Logs</a></li>
+        <li><a href="/admin-staff"><span class="fa-solid fa-person-chalkboard"></span>Staff Accounts</a></li>
+        <li><a href="/admin-students"><i class="fa-solid fa-file-waveform"></i>Student Records</a></li>
+        <li><a href="/admin-attendance"><i class="fa-solid fa-clipboard-list"></i>Attendance Logs</a></li>
+        <li><a href="/admin-excuses"><i class="fa-solid fa-file-medical"></i>Manage Excuses</a></li>
     </ul>
-    <p class="menu-label">System</p>
+    <p class="menu-label"><i class="fa-solid fa-server"></i>System</p>
     <ul class="menu-list">
-        <li><a>Configuration</a></li>
-        <li><a>System Logs</a></li>
+        <li><a href="/admin-configuration"><i class="fa-solid fa-gear"></i>Configuration</a></li>
+        <li><a href="/admin-logs"><i class="fa-solid fa-bars"></i>System Logs</a></li>
+        <li><a href="/admin-about"><i class="fa-solid fa-circle-info"></i>About System</a></li>
+    </ul>
+    <p class="menu-label is-hidden-desktop"><i class="fa-solid fa-circle-user"></i>Account</p> <!-- Only show on mobile/tablet -->
+    <ul class="menu-list is-hidden-desktop">
+        <li>
+            <button class="button is-fullwidth logout-button">Log out</button>
+        </li>
     </ul>
 </aside>

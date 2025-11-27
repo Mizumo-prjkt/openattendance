@@ -6,6 +6,7 @@ main.column {
 
 #mainpst {
     /* Give some spacing because it looks cluttered as hell */
-    margin-top: 30px;
-    margin-bottom: 30px;
+    top: 30px;
+    /* margin-top: 30px; */
+    /* margin-bottom: 30px; */
 }

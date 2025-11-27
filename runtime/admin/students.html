@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Manage Student Records</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Manage Student Records</h1>
+                    <h2 class="subtitle">Search, view, and manage student profiles.</h2>
+
+                    <div class="columns">
+                        <div class="column is-half">
+                            <div class="field">
+                                <p class="control has-icons-left">
+                                    <input class="input" type="text" id="search-student-input" placeholder="Search by name or student ID...">
+                                    <span class="icon is-small is-left">
+                                        <i class="fas fa-search"></i> <!-- Font Awesome icon -->
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <button class="button is-primary" id="register-student-btn">Register New Student</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-striped is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Classroom/Section</th>
+                                    <th>Phone Number</th>
+                                    <th>Emergency Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Data will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="6" class="has-text-centered">Loading student records...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Add/Edit Student Modal -->
+        <div class="modal" id="student-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" id="student-modal-title">Register New Student</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="student-form">
+                        <input type="hidden" id="student-db-id">
+                        <div class="field">
+                            <label class="label">Student ID <span class="has-text-danger">*</span></label>
+                            <div class="control">
+                                <input class="input" type="text" id="student-id" required>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column"><div class="field"><label class="label">First Name <span class="has-text-danger">*</span></label><div class="control"><input class="input" type="text" id="student-first-name" required></div></div></div>
+                            <div class="column"><div class="field"><label class="label">Middle Name</label><div class="control"><input class="input" type="text" id="student-middle-name"></div></div></div>
+                            <div class="column"><div class="field"><label class="label">Last Name</label><div class="control"><input class="input" type="text" id="student-last-name"></div></div></div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Classroom/Section</label>
+                            <div class="control">
+                                <input class="input" type="text" id="student-classroom-section" placeholder="e.g., Grade 10 - Section B">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Phone Number</label>
+                            <div class="control">
+                                <input class="input" type="tel" id="student-phone">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Address</label>
+                            <div class="control">
+                                <textarea class="textarea" id="student-address"></textarea>
+                            </div>
+                        </div>
+                        <hr>
+                        <h3 class="subtitle is-5">Emergency Contact</h3>
+                        <div class="columns">
+                            <div class="column is-two-thirds"><div class="field"><label class="label">Contact Name</label><div class="control"><input class="input" type="text" id="emergency-name"></div></div></div>
+                            <div class="column"><div class="field"><label class="label">Relationship</label><div class="control"><div class="select is-fullwidth"><select id="emergency-relationship"><option value="">Select</option><option value="parent">Parent</option><option value="guardian">Guardian</option></select></div></div></div></div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Contact Phone</label>
+                            <div class="control">
+                                <input class="input" type="tel" id="emergency-phone">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Profile Image</label>
+                            <div class="control">
+                                <input class="input" type="file" id="student-profile-image" accept="image/*">
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="save-student-btn">Save</button>
+                    <button class="button" id="cancel-student-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Student Info Modal -->
+        <div class="modal" id="student-info-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Student Profile</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="columns is-vcentered">
+                        <div class="column is-one-third has-text-centered">
+                            <figure class="image is-128x128 is-inline-block">
+                                <img id="info-profile-image" src="https://bulma.io/images/placeholders/128x128.png" alt="Profile image" style="border-radius: 50%;">
+                            </figure>
+                        </div>
+                        <div class="column">
+                            <p class="title is-4" id="info-full-name"><span class="fa-solid fa-id-badge"></span>Student Name</p>
+                            <p class="subtitle is-6" id="info-student-id"><span class="fa-solid fa-id-card"></span>Student ID</p>
+                            <p class="subtitle is-6" id="info-classroom-section">Classroom/Section</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="content">
+                        <p><strong><span class="fa-solid fa-phone"></span>Phone Number:</strong> <span id="info-phone">N/A</span></p>
+                        <p><strong><span class="fa-solid fa-house"></span>Address:</strong> <span id="info-address">N/A</span></p>
+                        <hr>
+                        <p><strong>Emergency Contact:</strong></p>
+                        <ul>
+                            <li><strong><span class="fa-solid fa-person-shelter"></span>Name:</strong> <span id="info-emergency-name">N/A</span></li>
+                            <li><strong><span class="fa-solid fa-phone"></span>Phone:</strong> <span id="info-emergency-phone">N/A</span></li>
+                            <li><strong><span class="fa-solid fa-user-group"></span>Relationship:</strong> <span id="info-emergency-relationship">N/A</span></li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Cropper Modal -->
+        <div class="modal" id="cropper-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Crop Profile Image</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div>
+                        <!-- Cropper.js v2 components -->
+                        <cropper-canvas background style="height: 400px;">
+                            <cropper-image id="cropper-image-element" alt="Image to crop" rotatable scalable translatable></cropper-image>
+                            <cropper-shade hidden></cropper-shade>
+                            <cropper-handle action="select" plain></cropper-handle>
+                            <cropper-selection id="cropper-selection-element" aspect-ratio="1" movable resizable initial-coverage="0.8">
+                                <cropper-grid role="grid" covered></cropper-grid>
+                                <cropper-crosshair centered></cropper-crosshair>
+                                <cropper-handle action="move" theme-color="rgba(255, 255, 255, 0.35)"></cropper-handle>
+                                <cropper-handle action="n-resize"></cropper-handle>
+                                <cropper-handle action="e-resize"></cropper-handle>
+                                <cropper-handle action="s-resize"></cropper-handle>
+                                <cropper-handle action="w-resize"></cropper-handle>
+                                <cropper-handle action="ne-resize"></cropper-handle>
+                                <cropper-handle action="nw-resize"></cropper-handle>
+                                <cropper-handle action="se-resize"></cropper-handle>
+                                <cropper-handle action="sw-resize"></cropper-handle>
+                            </cropper-selection>
+                        </cropper-canvas>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="apply-crop-btn">Apply Crop</button>
+                    <button class="button" id="cancel-crop-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+    </body>
+    <!-- Font Awesome for search icon -->
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/node/cropperjs/dist/cropper.js"></script>
+    <script src="/admin/assets/js/students.js"></script>
+</html>

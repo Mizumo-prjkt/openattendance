@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Attendance Logs</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Attendance Logs</h1>
+                    <h2 class="subtitle">Review and export historical attendance records.</h2>
+
+                    <!-- Filtering Controls -->
+                    <div class="box">
+                        <div class="columns is-vcentered">
+                            <div class="column is-3">
+                                <div class="field">
+                                    <label class="label">Date From</label>
+                                    <div class="control">
+                                        <input class="input" type="date" id="date-from-filter">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <div class="field">
+                                    <label class="label">Date To</label>
+                                    <div class="control">
+                                        <input class="input" type="date" id="date-to-filter">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Status</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            <select id="status-filter">
+                                                <option value="">All</option>
+                                                <option value="present">Present</option>
+                                                <option value="absent">Absent</option>
+                                                <option value="excused">Excused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Student</label>
+                                    <div class="control">
+                                        <input class="input" type="text" id="student-search-filter" placeholder="Search by name or ID...">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-narrow">
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button class="button is-link" id="filter-btn" style="margin-top: 32px;">Filter</button>
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-success" id="export-csv-btn" style="margin-top: 32px;">Export CSV</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mockup Data Table -->
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-striped is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                    <th>Time In</th>
+                                    <th>Time Out</th>
+                                    <th>Logged By</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                        <tbody id="attendance-table-body">
+                                <tr>
+                                    <td>2025-11-27</td>
+                                    <td>2023-0001</td>
+                                    <td>Maria Clara</td>
+                                    <td><span class="tag is-success">Present</span></td>
+                                    <td>08:01 AM</td>
+                                    <td>04:59 PM</td>
+                                    <td>Prof. Rizal</td>
+                                    <td><button class="button is-small is-info">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>2025-11-27</td>
+                                    <td>2023-0002</td>
+                                    <td>Simoun</td>
+                                    <td><span class="tag is-danger">Absent</span></td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Prof. Rizal</td>
+                                    <td><button class="button is-small is-info">View</button></td>
+                                </tr>
+                                 <tr>
+                                    <td>2025-11-26</td>
+                                    <td>2023-0001</td>
+                                    <td>Maria Clara</td>
+                                    <td><span class="tag is-warning">Excused</span></td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Prof. Rizal</td>
+                                    <td><button class="button is-small is-info">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Attendance Detail Modal -->
+        <div class="modal" id="attendance-detail-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Attendance Record Details</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="content">
+                        <p><strong>Student:</strong> <span id="detail-student-name"></span></p>
+                        <p><strong>Student ID:</strong> <span id="detail-student-id"></span></p>
+                        <p><strong>Date:</strong> <span id="detail-log-date"></span></p>
+                        <p><strong>Status:</strong> <span id="detail-status"></span></p>
+                        <hr>
+                        <p><strong>Time In:</strong> <span id="detail-time-in"></span></p>
+                        <p><strong>Time Out:</strong> <span id="detail-time-out"></span></p>
+                        <p><strong>Logged By:</strong> <span id="detail-logged-by"></span></p>
+                        <div id="detail-reason-container" class="is-hidden">
+                            <p><strong>Reason/Note:</strong></p>
+                            <div class="box has-background-light"><span id="detail-reason"></span></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </body>
+    <!-- Font Awesome for search icon -->
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/attendance.js"></script>
+</html>
