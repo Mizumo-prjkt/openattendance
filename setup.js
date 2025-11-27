@@ -126,84 +126,40 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // The db file is located at ./database/main.db relative to the project root
 // Code components came from @MizProject/Mitra with modifications
 const dbPath = path.join(__dirname, 'database', 'main.db');
+const dbDir = path.dirname(dbPath);
+
+// Ensure the database directory exists before we do anything else.
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const dbExists = fs.existsSync(dbPath);
+
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error(`Error opening database ${dbPath}: ${err.message}`);
         debugLogWriteToFile(`Error opening database ${dbPath}: ${err.message}`);
+        return; // Stop if we can't open the DB
+    }
+
+    if (!dbExists) {
+        console.log('Database not found. Creating new database from schema...');
+        debugLogWriteToFile('Database not found. Creating new database from schema...');
+        const schemaPath = path.join(__dirname, 'database_schem.sql');
+        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+
+        db.exec(schemaSql, (execErr) => {
+            if (execErr) {
+                console.error(`Error executing schema script: ${execErr.message}`);
+                debugLogWriteToFile(`Error executing schema script: ${execErr.message}`);
+            } else {
+                console.log('Database created and initialized successfully.');
+                debugLogWriteToFile('Database created and initialized successfully from database_schem.sql.');
+            }
+        });
     } else {
         console.log(`Successfully connected to database ${dbPath}`);
         debugLogWriteToFile(`Successfully connected to database ${dbPath}`);
-        // Create benchmark table if it doesn't exist
-        // Meant to autospawn
-        db.run(`CREATE TABLE IF NOT EXISTS benchmark_test (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            col_text1 TEXT,
-            col_text2 TEXT,
-            col_int1 INTEGER,
-            col_int2 INTEGER,
-            col_real1 REAL,
-            col_real2 REAL,
-            col_blob1 BLOB,
-            col_date1 DATE,
-            col_bool1 BOOLEAN
-        )`, (err) => {
-            if (err) {
-                console.error(`Error creating table: ${err.message}`);
-                debugLogWriteToFile(`Error creating table: ${err.message}`);
-            }
-        });
-        // Create admin_login table
-        db.run(`CREATE TABLE IF NOT EXISTS admin_login (
-            admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL,
-            recovery_code TEXT,
-            privilege TEXT DEFAULT 'admin'
-        )`, (err) => {
-            if (err) {
-                console.error(`Error creating admin_login table: ${err.message}`);
-                debugLogWriteToFile(`Error creating admin_login table: ${err.message}`);
-            } else {
-                debugLogWriteToFile(`admin_login table checked/created.`);
-            }
-        });
-
-        // Create students table
-        db.run(`CREATE TABLE IF NOT EXISTS students (
-           id INTEGER PRIMARY KEY AUTOINCREMENT,
-           last_name TEXT,
-           first_name TEXT NOT NULL,
-           middle_name TEXT,
-           phone_number TEXT,
-           address TEXT,
-           emergency_contact_name TEXT,
-           emergency_contact_phone TEXT,
-           emergency_contact_relationship TEXT CHECK (
-               emergency_contact_relationship IN ('parent', 'guardian')
-           ),
-           student_id TEXT NOT NULL UNIQUE
-        )`, (err) => {
-            if (err) {
-                console.error(`Error creating students table: ${err.message}`);
-                debugLogWriteToFile(`Error creating students table: ${err.message}`);
-            }
-        });
-
-        // Create configurations table
-        db.run(`CREATE TABLE IF NOT EXISTS configurations (
-           config_id INTEGER PRIMARY KEY AUTOINCREMENT,
-           school_name TEXT NOT NULL,
-           school_type TEXT CHECK (school_type IN ('public', 'private', 'charter', 'international')),
-           address TEXT,
-           logo_directory TEXT,
-           organization_hotline TEXT,
-           country_code TEXT NOT NULL
-        )`, (err) => {
-            if (err) {
-                console.error(`Error creating configurations table: ${err.message}`);
-                debugLogWriteToFile(`Error creating configurations table: ${err.message}`);
-            }
-        });
     }
 });
 
@@ -465,6 +421,56 @@ app.post('/api/setup/configure', upload, (req, res) => {
         });
     });
 });
+
+app.get('/api/setup/verify-schema', async (req, res) => {
+    debugLogWriteToFile('Starting database schema creation and verification...');
+    try {
+        // 1. Read the entire schema file
+        const schemaPath = path.join(__dirname, 'database_schem.sql');
+        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+
+        // 2. Execute the entire script at once. 
+        // `CREATE TABLE IF NOT EXISTS` is idempotent, so this is safe to run even if tables exist.
+        await new Promise((resolve, reject) => {
+            db.exec(schemaSql, (err) => {
+                if (err) {
+                    debugLogWriteToFile(`Schema execution failed: ${err.message}`);
+                    return reject(err);
+                }
+                debugLogWriteToFile('Schema script executed successfully.');
+                resolve();
+            });
+        });
+
+        // 3. Verify that all tables now exist
+        const expectedTableNames = (schemaSql.match(/CREATE TABLE IF NOT EXISTS\s+`?(\w+)`?/gi) || [])
+            .map(s => s.match(/CREATE TABLE IF NOT EXISTS\s+`?(\w+)`?/i)[1]);
+
+        const getTables = () => new Promise((resolve, reject) => {
+            db.all("SELECT name FROM sqlite_master WHERE type='table'", [], (err, tables) => {
+                if (err) return reject(err);
+                resolve(tables.map(t => t.name));
+            });
+        });
+
+        const actualTables = await getTables();
+        
+        const actions = expectedTableNames.map(table => ({
+            table: table,
+            status: actualTables.includes(table) ? 'exists' : 'missing'
+        }));
+
+        const allTablesExist = actions.every(a => a.status === 'exists');
+
+        debugLogWriteToFile('Schema verification process complete.');
+        res.json({ success: allTablesExist, actions: actions });
+
+    } catch (error) {
+        debugLogWriteToFile(`Schema verification failed: ${error.message}`);
+        res.status(500).json({ error: 'Failed to verify database schema.', details: error.message });
+    }
+});
+
 // Catch-all for 404 Not Found errors
 // This should be the last route handler to catch any unmatched requests.
 app.use((req, res, next) => {

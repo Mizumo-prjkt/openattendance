@@ -1,0 +1,8 @@
+.action-button {
+    min-width: 200px;
+    margin: 0.5rem;
+}
+
+#action-redirect {
+    font-family: 'Stack Sans Notch', sans-serif;
+}

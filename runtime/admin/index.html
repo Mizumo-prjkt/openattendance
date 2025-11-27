@@ -1,0 +1,51 @@
+<!-- Admin side page -->
+<!-- For school IT admin -->
+<!-- Direct login -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Administrator Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/shared/css/override-bulma-nodark.css">
+        <link rel="stylesheet" href="/admin/assets/css/index.css">
+    </head>
+    <body>
+        <section class="hero is-fullheight">
+            <div class="hero-body">
+                <div class="container">
+                    <div class="columns is-centered">
+                        <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                            <form class="box" id="admin-login-form">
+                                <h1 class="title is-4 has-text-centered">Administrator Login</h1>
+                                <p class="subtitle is-6 has-text-centered">System Administration Access</p>
+                                <div class="field">
+                                    <label for="admin-username" class="label">Admin Username</label>
+                                    <div class="control">
+                                        <input type="text" class="input" id="admin-username" placeholder="admin" required>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="admin-password" class="label">Password</label>
+                                    <div class="control">
+                                        <input type="password" class="input" id="admin-password" placeholder="********" required>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <button class="button is-success is-fullwidth" id="admin-login-btn">Login</button>
+                                </div>
+                                <div class="dynamic-message has-text-centered" id="admin-login-message"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+    <script src="/admin/assets/js/admin-auth.js"></script>
+    <script src="/admin/assets/js/admin-login.js"></script>
+    <script src="/admin/assets/js/admin-login-ui.js"></script>
+</html>

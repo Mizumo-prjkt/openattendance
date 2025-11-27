@@ -1,2 +1,103 @@
 <!-- Client side page -->
-<!-- This area is for the page where -->
+<!-- This area is for the page where the teachers or assigned officers access the system -->
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>OpenAttendance</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/shared/css/override-bulma-nodark.css">
+        <link rel="stylesheet" href="/client/assets/css/index-actionbtn.css">
+    </head>
+    <body>
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <!-- Logo here, for now, leave this empty... -->
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navBarNavigation">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+            <div id="navBarNavigation" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item">
+                        Home
+                    </a>
+                    <a class="navbar-item">
+                        Manage
+                    </a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                        Settings
+                        </a>
+                        <div class="navbar-dropdown is-right">
+                            <!-- <a class="navbar-item" style="display: none;">
+                                Profile
+                            </a>
+                            <a class="navbar-item" style="display: none;">
+                                Account
+                            </a> -->
+                            <a class="navbar-item">
+                                Light/Dark Mode
+                            </a>
+                            <hr class="navbar-divider">
+                            <a class="navbar-item">
+                                Log in
+                            </a>
+                        </div>
+                    </div>
+                    <div class="navbar-item" style="display: none">
+                        <div class="buttons">
+                            <a class="button is-primary">
+                                Scan QR Code
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <section class="hero is-fullheight-with-navbar">
+            <div class="hero-body">
+                <div class="container has-text-centered">
+                    <div class="box">
+                        <h1 class="title is-1" id="school-namebrand">
+                            OpenAttendance
+                        </h1>
+                        <h2 class="subtitle is-3" id="current-datetime">
+                            Loading date and time...
+                        </h2>
+                        <hr>
+                        <p class="is-size-5 mb-5">Please select an action to continue.</p>
+                        <!-- <div class="columns is-centered is-vcentered">
+                            <div class="column is-narrow">
+                                <button class="button is-primary is-large action-button">Scan Student ID</button>
+                            </div>
+                            <div class="column is-narrow">
+                                <button class="button is-info is-large action-button">Manual Entry</button>
+                            </div>
+                        </div> -->
+                        <div class="column is-centered is-vcentered">
+                            <div class="column is-narrow">
+                                <!-- This button should dynamically change from login to student audit -->
+                                <a class="button is-primary is-large action-button" id="action-redirect">Loading...</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+    <script src="/shared/js/auth.js"></script>
+    <script src="/shared/js/navbar-bulma.js"></script>
+    <script src="/shared/js/timer.js"></script>
+    <script src="/client/assets/js/button-index-center.js"></script>
+</html>

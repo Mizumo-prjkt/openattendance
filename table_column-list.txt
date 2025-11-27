@@ -1,0 +1,325 @@
+Tables and their columns:
+
+Table: benchmark_test
+  - Column: id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: col_text1
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_text2
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_int1
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_int2
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_real1
+    Type: REAL
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_real2
+    Type: REAL
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_blob1
+    Type: BLOB
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_date1
+    Type: DATE
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: col_bool1
+    Type: BOOLEAN
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+
+Table: sqlite_sequence
+  - Column: name
+    Type: 
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: seq
+    Type: 
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+
+Table: admin_login
+  - Column: admin_id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: username
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: password
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: recovery_code
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: privilege
+    Type: TEXT
+    Not Null: False
+    Default Value: 'admin'
+    Primary Key: False
+
+Table: students
+  - Column: id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: last_name
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: first_name
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: middle_name
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: phone_number
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: address
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: emergency_contact_name
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: emergency_contact_phone
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: emergency_contact_relationship
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: student_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+
+Table: configurations
+  - Column: config_id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: school_name
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: school_type
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: address
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: logo_directory
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: organization_hotline
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: country_code
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: created_config_date
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+
+Table: absent
+  - Column: absent_id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: student_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: staff_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: reason
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: absent_datetime
+    Type: DATETIME
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+
+Table: present
+  - Column: present_id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: student_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: staff_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: time_in
+    Type: DATETIME
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: time_out
+    Type: DATETIME
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+
+Table: excused
+  - Column: excused_id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: student_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: staff_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: reason
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: request_datetime
+    Type: DATETIME
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: verdict_datetime
+    Type: DATETIME
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: result
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+
+Table: staff_accounts
+  - Column: id
+    Type: INTEGER
+    Not Null: False
+    Default Value: None
+    Primary Key: True
+  - Column: staff_id
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: name
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: phone_number
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: email_address
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: staff_type
+    Type: TEXT
+    Not Null: True
+    Default Value: None
+    Primary Key: False
+  - Column: teacher_type
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: adviser_unit
+    Type: TEXT
+    Not Null: False
+    Default Value: None
+    Primary Key: False
+  - Column: active
+    Type: INTEGER
+    Not Null: True
+    Default Value: 1
+    Primary Key: False
+

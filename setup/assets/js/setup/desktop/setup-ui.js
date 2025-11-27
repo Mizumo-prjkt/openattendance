@@ -8,7 +8,20 @@
 // Though the display logic will be handled by the DOMContentLoaded event
 function pageUIDisplayPage(targetHTML, pageID) {
     switch (pageID) {
-        case 2:
+        case 2: // New Page: Schema Verification
+            targetHTML.innerHTML = `
+            <h2 class="title is-4">Database Initialization</h2>
+            <p class="subtitle is-6">This step will create missing tables and verify the database structure.</p>
+            <div class="has-text-centered">
+                <button class="button is-info" id="verify-schema-btn">Verify Schema</button>
+            </div>
+            <div class="dynamic-message" id="schema-results-message" style="margin-top: 20px;"></div>
+            <hr/>
+            `;
+            nextBtn.disabled = true; // Disable until verification is successful
+            break;
+
+        case 3:
             // Test database
             targetHTML.innerHTML = `
             <h2 class="title is-4">Database Benchmark</h2>
@@ -21,7 +34,7 @@ function pageUIDisplayPage(targetHTML, pageID) {
             `;
             break;
 
-        case 3:
+        case 4:
             // Admin Account Setup Page
             targetHTML.innerHTML = `
             <h2 class="title is-4">Admin Account Setup</h2>
@@ -62,7 +75,7 @@ function pageUIDisplayPage(targetHTML, pageID) {
             
             break;
 
-        case 4:
+        case 5:
             // System Configuration Page
             targetHTML.innerHTML = `
             <h2 class="title is-4">System Configuration</h2>
@@ -135,7 +148,7 @@ function pageUIDisplayPage(targetHTML, pageID) {
             nextBtn.disabled = true; // Disable until config is saved
             break;
 
-        case 5:
+        case 6:
             // Final Landing
             targetHTML.innerHTML = `
             <h2 class="title is-4">Setup Complete!</h2>
@@ -301,6 +314,53 @@ function pageUIDisplayPage(targetHTML, pageID) {
             button.classList.remove('is-loading');
             button.disabled = false;
         }
+
+        if (target.id === 'verify-schema-btn') {
+            const button = target;
+            const messageDiv = document.getElementById('schema-results-message');
+            button.classList.add('is-loading');
+            button.disabled = true;
+            messageDiv.innerHTML = '<p>Initializing database, please wait...</p>';
+
+            try {
+                const response = await fetch('/api/setup/verify-schema');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.details || data.error || 'An unknown server error occurred.');
+                }
+
+                let html = '';
+                data.actions.forEach(action => {
+                    switch(action.status) {
+                        case 'created':
+                            html += `<p class="has-text-success">✅ Created table: <strong>${action.table}</strong></p>`;
+                            break;
+                        case 'exists':
+                            html += `<p class="has-text-info">🔹 Table already exists: <strong>${action.table}</strong> (Skipped)</p>`;
+                            break;
+                        default:
+                            html += `<p class="has-text-danger">❌ Failed to create table: <strong>${action.table}</strong> - ${action.status}</p>`;
+                    }
+                });
+
+                if (data.success) {
+                    html = '<p class="has-text-success"><strong>Success!</strong> Database schema is valid.</p><hr/>' + html;
+                    nextBtn.disabled = false;
+                } else {
+                    html = '<p class="has-text-danger"><strong>Initialization Failed!</strong> Could not create or verify all required tables. Check server logs for details.</p><hr/>' + html;
+                }
+
+                messageDiv.innerHTML = html;
+
+            } catch (err) {
+                messageDiv.innerHTML = `<p class="has-text-danger">An error occurred during verification: ${err.message}</p>`;
+            } finally {
+                button.classList.remove('is-loading');
+                // Keep button disabled after running, regardless of outcome.
+                button.disabled = true;
+            }
+        }
     });
 
     function attachPageEventListeners(pageID) {
@@ -351,7 +411,7 @@ function pageUIDisplayPage(targetHTML, pageID) {
             if (validateBtn) validateBtn.addEventListener('click', () => handleAdminAction('validate'));
         }
 
-        if (pageID === 4) { // System Configuration
+        if (pageID === 5) { // System Configuration
             const saveBtn = document.getElementById('save-config-btn');
             if (!saveBtn) return;
 

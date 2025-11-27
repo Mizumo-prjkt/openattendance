@@ -1,0 +1,12 @@
+.is-fullheight {
+    min-height: calc(100vh - 52px); /* 100% of viewport height minus the navbar height */
+}
+
+/* Make the sidebar sticky to the top of its container */
+#sidebar-placeholder {
+    position: sticky;
+    top: 52px; /* Height of the navbar */
+    height: calc(100vh - 52px); /* Full viewport height minus navbar */
+    overflow-y: auto; /* Add scroll to sidebar if its content is too long */
+}
+

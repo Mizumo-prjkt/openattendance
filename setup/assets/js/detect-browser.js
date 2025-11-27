@@ -37,14 +37,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     localStorage.setItem('browserName', browserName);
     localStorage.setItem('deviceType', deviceType);
 
-    // Temporary: Set a browser error modal for test detection
-    // Browser support check
-    // if (browserName === "unknown") {
-    //     alert("Unsupported browser detected. Please use Chrome, Firefox, or Edge for the best experience.");
-    // } else if (browserName === "Firefox" || browserName === "Chrome" || browserName === "Edge") {
-    //     console.log(`Detected browser: ${browserName} on a ${deviceType} device.`);
-    //     alert(`Detected browser: ${browserName} on a ${deviceType} device.`);
-    // }
+
 
     // Dynamic page update
     const statusDetectionHeader = document.getElementById('status-detection-header');

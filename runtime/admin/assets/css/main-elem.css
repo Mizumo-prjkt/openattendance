@@ -1,0 +1,11 @@
+/* Make the main content area scrollable and fill the available height */
+main.column {
+    height: calc(100vh - 52px); /* Full viewport height minus navbar */
+    overflow-y: auto;
+}
+
+#mainpst {
+    /* Give some spacing because it looks cluttered as hell */
+    margin-top: 30px;
+    margin-bottom: 30px;
+}

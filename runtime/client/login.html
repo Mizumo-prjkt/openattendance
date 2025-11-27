@@ -1,0 +1,48 @@
+<!--Login page for teachers-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Staff Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/shared/css/override-bulma-nodark.css">
+        <!-- <link rel="stylesheet" href="/client/assets/css/index-actionbtn.css"> -->
+    </head>
+    <body>
+        <section class="hero is-fullheight">
+            <div class="hero-body">
+                <div class="container">
+                    <div class="columns is-centered">
+                        <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                            <form class="box" id="login-form">
+                                <h1 class="title is-4 has-text-centered">Staff Login</h1>
+                                <div class="field">
+                                    <label for="username" class="label">Username</label>
+                                    <div class="control">
+                                        <input type="text" class="input" id="username" placeholder="e.g., j.doe" required>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="password" class="label">Password</label>
+                                    <div class="control">
+                                        <input type="password" class="input" id="password" placeholder="********" required>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <button class="button is-primary is-fullwidth" id="login-btn">Login</button>
+                                </div>
+                                <div class="dynamic-message has-text-centered" id="login-message"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+    <!-- Shared libs; runtime/shared/js -->
+    <script src="/shared/js/auth.js"></script>
+    <script src="/shared/js/login.js"></script>
+</html>

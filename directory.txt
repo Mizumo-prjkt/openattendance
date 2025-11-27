@@ -1,0 +1,183 @@
+.
+├── data
+│   ├── images
+│   │   ├── student
+│   │   └── web
+│   └── logs
+├── database
+│   └── main.db
+├── database-schema-sqlite3.txt
+├── database_schem.sql
+├── directory.txt
+├── outtable.sh
+├── package-lock.json
+├── package.json
+├── print-current-table.py
+├── readme.md
+├── run.sh
+├── runtime
+│   ├── admin
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   │   ├── index.css
+│   │   │   │   └── panel.css
+│   │   │   ├── images
+│   │   │   └── js
+│   │   │       ├── admin-auth.js
+│   │   │       ├── admin-login-ui.js
+│   │   │       ├── admin-login.js
+│   │   │       └── panel.js
+│   │   ├── home.html
+│   │   └── index.html
+│   ├── client
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   │   └── index-actionbtn.css
+│   │   │   └── js
+│   │   │       └── button-index-center.js
+│   │   ├── index.html
+│   │   └── login.html
+│   ├── kiosk
+│   │   ├── assets
+│   │   └── index.html
+│   ├── mobile
+│   └── shared
+│       ├── css
+│       │   ├── font-thme.css
+│       │   ├── fontstyle.css
+│       │   ├── forbidden-bulma.css
+│       │   ├── forbidden-framework7.css
+│       │   └── override-bulma-nodark.css
+│       ├── etc
+│       │   ├── fonts
+│       │   │   ├── Momo_Trust_Display
+│       │   │   │   ├── MomoTrustDisplay-Regular.ttf
+│       │   │   │   └── OFL.txt
+│       │   │   ├── Oxanium
+│       │   │   │   ├── OFL.txt
+│       │   │   │   ├── Oxanium-VariableFont_wght.ttf
+│       │   │   │   ├── README.txt
+│       │   │   │   └── static
+│       │   │   │       ├── Oxanium-Bold.ttf
+│       │   │   │       ├── Oxanium-ExtraBold.ttf
+│       │   │   │       ├── Oxanium-ExtraLight.ttf
+│       │   │   │       ├── Oxanium-Light.ttf
+│       │   │   │       ├── Oxanium-Medium.ttf
+│       │   │   │       ├── Oxanium-Regular.ttf
+│       │   │   │       └── Oxanium-SemiBold.ttf
+│       │   │   ├── README.md
+│       │   │   ├── Stack_Sans_Notch
+│       │   │   │   ├── OFL.txt
+│       │   │   │   ├── README.txt
+│       │   │   │   ├── StackSansNotch-VariableFont_wght.ttf
+│       │   │   │   └── static
+│       │   │   │       ├── StackSansNotch-Bold.ttf
+│       │   │   │       ├── StackSansNotch-ExtraLight.ttf
+│       │   │   │       ├── StackSansNotch-Light.ttf
+│       │   │   │       ├── StackSansNotch-Medium.ttf
+│       │   │   │       ├── StackSansNotch-Regular.ttf
+│       │   │   │       └── StackSansNotch-SemiBold.ttf
+│       │   │   └── Tilt_Neon
+│       │   │       ├── OFL.txt
+│       │   │       ├── README.txt
+│       │   │       └── TiltNeon-Regular-VariableFont_XROT,YROT.ttf
+│       │   └── page
+│       │       └── errors
+│       │           └── error_copilot.png
+│       ├── html
+│       │   ├── desktop
+│       │   │   └── forbidden.html
+│       │   └── mobile
+│       │       └── forbidden.html
+│       ├── images
+│       ├── index.md
+│       └── js
+│           ├── auth.js
+│           ├── forbidden-bulma.js
+│           ├── forbidden-framework7.js
+│           ├── login.js
+│           ├── navbar-bulma.js
+│           └── timer.js
+├── runtime.js
+├── setup
+│   ├── assets
+│   │   ├── css
+│   │   │   ├── detect-browser.css
+│   │   │   ├── fontstyle.css
+│   │   │   ├── forbidden-bulma.css
+│   │   │   ├── forbidden-framework7.css
+│   │   │   ├── override-bulma-nodark.css
+│   │   │   └── setup
+│   │   │       ├── desktop
+│   │   │       │   └── main.css
+│   │   │       └── mobile
+│   │   │           └── main.css
+│   │   ├── fonts
+│   │   │   ├── Momo_Trust_Display
+│   │   │   │   ├── MomoTrustDisplay-Regular.ttf
+│   │   │   │   └── OFL.txt
+│   │   │   ├── Oxanium
+│   │   │   │   ├── OFL.txt
+│   │   │   │   ├── Oxanium-VariableFont_wght.ttf
+│   │   │   │   ├── README.txt
+│   │   │   │   └── static
+│   │   │   │       ├── Oxanium-Bold.ttf
+│   │   │   │       ├── Oxanium-ExtraBold.ttf
+│   │   │   │       ├── Oxanium-ExtraLight.ttf
+│   │   │   │       ├── Oxanium-Light.ttf
+│   │   │   │       ├── Oxanium-Medium.ttf
+│   │   │   │       ├── Oxanium-Regular.ttf
+│   │   │   │       └── Oxanium-SemiBold.ttf
+│   │   │   ├── README.md
+│   │   │   ├── Stack_Sans_Notch
+│   │   │   │   ├── OFL.txt
+│   │   │   │   ├── README.txt
+│   │   │   │   ├── StackSansNotch-VariableFont_wght.ttf
+│   │   │   │   └── static
+│   │   │   │       ├── StackSansNotch-Bold.ttf
+│   │   │   │       ├── StackSansNotch-ExtraLight.ttf
+│   │   │   │       ├── StackSansNotch-Light.ttf
+│   │   │   │       ├── StackSansNotch-Medium.ttf
+│   │   │   │       ├── StackSansNotch-Regular.ttf
+│   │   │   │       └── StackSansNotch-SemiBold.ttf
+│   │   │   └── Tilt_Neon
+│   │   │       ├── OFL.txt
+│   │   │       ├── README.txt
+│   │   │       └── TiltNeon-Regular-VariableFont_XROT,YROT.ttf
+│   │   ├── html
+│   │   │   ├── desktop
+│   │   │   │   ├── forbidden.html
+│   │   │   │   └── setup.html
+│   │   │   └── mobile
+│   │   │       ├── forbidden.html
+│   │   │       └── setup.html
+│   │   ├── images
+│   │   │   ├── logos
+│   │   │   └── page
+│   │   │       └── errors
+│   │   │           └── error_copilot.png
+│   │   ├── js
+│   │   │   ├── 2auth_manager.js
+│   │   │   ├── auth.js
+│   │   │   ├── configuration.js
+│   │   │   ├── credentials.js
+│   │   │   ├── dbtest.js
+│   │   │   ├── detect-browser.js
+│   │   │   ├── forbidden-bulma.js
+│   │   │   ├── forbidden-framework7.js
+│   │   │   ├── recoverygen.js
+│   │   │   └── setup
+│   │   │       ├── desktop
+│   │   │       │   └── setup-ui.js
+│   │   │       └── mobile
+│   │   │           └── setup-ui.js
+│   │   └── others
+│   │       └── terms_and_conditions
+│   │           └── toc.txt
+│   └── index.html
+├── setup.js
+├── setup.sh
+├── table_column-list.txt
+└── table_schem.md
+
+63 directories, 118 files

@@ -1,11 +1,15 @@
 {
   "dependencies": {
+    "@cubejs-client/core": "^1.5.9",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
     "bcrypt": "^6.0.0",
     "bulma": "^1.0.4",
+    "chart.js": "^4.5.1",
+    "chartjs": "^0.3.24",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "framework7": "^8.3.4",
     "html5-qrcode": "^2.3.8",
     "jsbarcode": "^3.12.1",
@@ -13,6 +17,7 @@
     "mkdirp": "^3.0.1",
     "multer": "^2.0.2",
     "nodemon": "^3.1.10",
+    "ntp-time": "^2.0.8",
     "qrcode": "^1.5.4",
     "sequelize": "^6.37.7",
     "speakeasy": "^2.0.0",
@@ -20,8 +25,10 @@
   },
   "scripts": {
     "start": "node runtime.js",
-    "dev": "nodemon runtime.js --debug",
+    "dev-debug": "nodemon runtime.js --debug",
+    "dev": "nodemon runtime.js",
     "setup-test": "nodemon setup.js",
+    "dev-setup-test": "nodemon setup.js --debug",
     "setup": "node setup.js"
   }
 }

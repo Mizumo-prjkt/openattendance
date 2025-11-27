@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-light has-navbar-fixed-top">
+    <head>
+        <title>Manage Staff Accounts</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Manage Staff Accounts</h1>
+                    <h2 class="subtitle">Add, edit, or remove staff and administrator accounts.</h2>
+
+                    <div class="block">
+                        <div class="buttons">
+                            <button class="button is-primary" id="add-staff-btn">Create New Staff Account</button>
+                            <button class="button is-success" id="add-admin-btn">Create New Admin</button>
+                        </div>
+                    </div>
+
+                    <div class="tabs is-boxed">
+                        <ul>
+                            <li class="is-active" data-tab="teachers"><a>Teachers</a></li>
+                            <li data-tab="student-council"><a>Student Council</a></li>
+                            <li data-tab="security"><a>Security</a></li>
+                            <li data-tab="admins"><a>System Administrators</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div id="tab-content">
+                        <!-- Teachers -->
+                        <div class="tab-pane is-active" id="teachers">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead><tr><th>Staff ID</th><th>Name</th><th>Email</th><th>Adviser Unit</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>T-101</td><td>John Doe</td><td>j.doe@example.com</td><td>Grade 10 - Section A</td><td><button class="button is-small is-info edit-staff-btn" data-id="T-101">Edit</button> <button class="button is-small is-danger">Delete</button></td></tr>
+                                    <tr><td>T-102</td><td>Jane Smith</td><td>j.smith@example.com</td><td>Grade 9 - Section B</td><td><button class="button is-small is-info edit-staff-btn" data-id="T-102">Edit</button> <button class="button is-small is-danger">Delete</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Student Council -->
+                        <div class="tab-pane" id="student-council" style="display: none;">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead><tr><th>Staff ID</th><th>Name</th><th>Email</th><th>Position</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>SC-01</td><td>Alice Johnson</td><td>a.johnson@example.com</td><td>President</td><td><button class="button is-small is-info edit-staff-btn" data-id="SC-01">Edit</button> <button class="button is-small is-danger">Delete</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Security -->
+                        <div class="tab-pane" id="security" style="display: none;">
+                             <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead><tr><th>Staff ID</th><th>Name</th><th>Contact</th><th>Shift</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>SEC-001</td><td>Bob Williams</td><td>+123456789</td><td>Day Shift</td><td><button class="button is-small is-info edit-staff-btn" data-id="SEC-001">Edit</button> <button class="button is-small is-danger">Delete</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- System Administrators -->
+                        <div class="tab-pane" id="admins" style="display: none;">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead><tr><th>Admin ID</th><th>Username</th><th>Privilege</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>1</td><td>admin</td><td>admin</td><td><button class="button is-small is-info edit-admin-btn" data-id="1">Edit</button> <button class="button is-small is-danger is-light" disabled>Delete</button></td></tr>
+                                    <tr><td>2</td><td>miku</td><td>admin</td><td><button class="button is-small is-info edit-admin-btn" data-id="2">Edit</button> <button class="button is-small is-danger">Delete</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+
+        <!-- Add Staff Modal -->
+        <div class="modal" id="add-staff-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Create New Staff Account</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="add-staff-form">
+                        <div class="field">
+                            <label class="label">Staff ID</label>
+                            <div class="control">
+                                <input class="input" type="text" id="new-staff-id" placeholder="e.g., T-103" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Full Name</label>
+                            <div class="control">
+                                <input class="input" type="text" id="new-staff-name" placeholder="e.g., Samuel L. Jackson" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Email Address</label>
+                            <div class="control">
+                                <input class="input" type="email" id="new-staff-email" placeholder="e.g., s.jackson@example.com">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Staff Type</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="new-staff-type" required>
+                                        <option value="">Select type...</option>
+                                        <option value="teacher">Teacher</option>
+                                        <option value="student_council">Student Council</option>
+                                        <option value="security">Security</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Teacher-specific fields, hidden by default -->
+                        <div id="teacher-fields" style="display: none;">
+                            <div class="field">
+                                <label class="label">Adviser Unit (Optional)</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="new-adviser-unit" placeholder="e.g., Grade 11 - Section C">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Profile Image (Optional)</label>
+                            <div class="control">
+                                <input class="input" type="file" id="new-staff-image" accept="image/*">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="field">
+                            <label class="label">Username</label>
+                            <div class="control">
+                                <input class="input" type="text" id="new-staff-username" placeholder="Enter a unique username for login" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Password</label>
+                            <div class="control">
+                                <input class="input" type="password" id="new-staff-password" placeholder="Enter a strong password" required>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="save-staff-btn">Save Account</button>
+                    <button class="button" id="cancel-staff-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Add Admin Modal -->
+        <div class="modal" id="add-admin-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Create New Administrator</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="add-admin-form">
+                        <div class="field">
+                            <label class="label">Admin Username</label>
+                            <div class="control">
+                                <input class="input" type="text" id="new-admin-username" placeholder="Enter a unique username" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Password</label>
+                            <div class="control">
+                                <input class="input" type="password" id="new-admin-password" placeholder="Enter a strong password" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Confirm Password</label>
+                            <div class="control">
+                                <input class="input" type="password" id="new-admin-confirm-password" placeholder="Confirm the password" required>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="save-admin-btn">Save Admin</button>
+                    <button class="button" id="cancel-admin-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Edit Staff Modal -->
+        <div class="modal" id="edit-staff-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Edit Staff Account</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="edit-staff-form">
+                        <input type="hidden" id="edit-staff-original-id">
+                        <div class="field">
+                            <label class="label">Staff ID</label>
+                            <div class="control">
+                                <input class="input" type="text" id="edit-staff-id" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Full Name</label>
+                            <div class="control">
+                                <input class="input" type="text" id="edit-staff-name" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Email Address</label>
+                            <div class="control">
+                                <input class="input" type="email" id="edit-staff-email">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Staff Type</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="edit-staff-type" disabled>
+                                        <option value="teacher">Teacher</option>
+                                        <option value="student_council">Student Council</option>
+                                        <option value="security">Security</option>
+                                    </select>
+                                </div>
+                                <p class="help">Staff type cannot be changed. To change a role, create a new account.</p>
+                            </div>
+                        </div>
+                        <!-- Teacher-specific fields, hidden by default -->
+                        <div id="edit-teacher-fields" style="display: none;">
+                            <div class="field">
+                                <label class="label">Adviser Unit (Optional)</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="edit-adviser-unit" placeholder="e.g., Grade 11 - Section C">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="field">
+                            <label class="label">New Password (Optional)</label>
+                            <div class="control">
+                                <input class="input" type="password" id="edit-staff-password" placeholder="Leave blank to keep current password">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Confirm New Password</label>
+                            <div class="control">
+                                <input class="input" type="password" id="edit-staff-confirm-password" placeholder="Confirm new password if changed">
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="update-staff-btn">Update Account</button>
+                    <button class="button">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Edit Admin Modal -->
+        <div class="modal" id="edit-admin-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Edit Administrator</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="edit-admin-form">
+                        <input type="hidden" id="edit-admin-id">
+                        <div class="field">
+                            <label class="label">Admin Username</label>
+                            <div class="control">
+                                <input class="input" type="text" id="edit-admin-username" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">New Password (Optional)</label>
+                            <div class="control">
+                                <input class="input" type="password" id="edit-admin-password" placeholder="Leave blank to keep current password">
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="update-admin-btn">Update Admin</button>
+                    <button class="button">Cancel</button>
+                </footer>
+            </div>
+        </div>
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/staff.js"></script>
+</html>
