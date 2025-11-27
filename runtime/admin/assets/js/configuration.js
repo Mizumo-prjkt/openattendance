@@ -124,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiKey = document.getElementById('sms-api-key').value;
         const senderName = document.getElementById('sms-sender-name').value;
 
-        const payload = { sender_name: senderName };
+        const payload = {
+            sender_name: senderName
+        };
         if (apiKey) {
             payload.api_key = apiKey;
         }

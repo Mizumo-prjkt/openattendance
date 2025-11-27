@@ -8,8 +8,8 @@
         <link rel="stylesheet" href="/shared/css/font-thme.css">
         <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
         <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
-        <link rel="stylesheet" href="/node/bulma-steps/dist/css/bulma-steps.min.css">
         <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/custom-steps.css">
         <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
     </head>
     <body>
@@ -31,7 +31,7 @@
                     <div class="tabs is-boxed">
                         <ul>
                             <li class="is-active" data-tab="pending"><a><span class="icon is-small"><i class="fas fa-hourglass-half"></i></span><span>Pending</span></a></li>
-                            <li data-tab="approved"><a><span class="icon is-small"><i class="fas fa-check-circle"></i></span><span>Approved</span></a></li>
+                            <li data-tab="excused"><a><span class="icon is-small"><i class="fas fa-check-circle"></i></span><span>Excused</span></a></li>
                             <li data-tab="rejected"><a><span class="icon is-small"><i class="fas fa-times-circle"></i></span><span>Rejected</span></a></li>
                         </ul>
                     </div>
@@ -60,11 +60,11 @@
                             </div>
                         </div>
                         <!-- Approved Tab -->
-                        <div class="tab-pane" id="approved" style="display: none;">
+                        <div class="tab-pane" id="excused" style="display: none;">
                             <div class="table-container">
                                 <table class="table is-fullwidth is-striped is-hoverable">
                                     <thead><tr><th>Student</th><th>Date Submitted</th><th>Date Approved</th><th>Processed By</th><th>Actions</th></tr></thead>
-                                    <tbody id="approved-table-body">
+                                    <tbody id="excused-table-body">
                                         <!-- Mockup Data -->
                                         <tr>
                                             <td>Simoun (2023-0002)</td>
@@ -110,26 +110,31 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="content">
-                        <div class="steps" id="excuse-steps">
-                            <ul>
-                                <li class="step-item is-active">
-                                    <div class="step-marker">1</div>
-                                    <div class="step-details"><div class="step-title">Submitted</div></div>
-                                </li>
-                                <li class="step-item"><div class="step-marker">2</div><div class="step-details"><div class="step-title">Review</div></div></li>
-                                <li class="step-item"><div class="step-marker">3</div><div class="step-details"><div class="step-title">Verdict</div></div></li>
-                            </ul>
+                        <div class="steps-container mb-5" id="excuse-steps">
+                            <div class="step-item">
+                                <div class="step-marker">1</div>
+                                <div class="step-title">Submitted</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-marker">2</div>
+                                <div class="step-title">In Review</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-marker">3</div>
+                                <div class="step-title">Verdict</div>
+                            </div>
                         </div>
                         <hr>
                         <p><strong>Student:</strong> <span id="detail-student-name"></span></p>
                         <p><strong>Student ID:</strong> <span id="detail-student-id"></span></p>
+                        <p><strong>Submitted By:</strong> <span id="detail-requester-name"></span></p>
                         <p><strong>Date Submitted:</strong> <span id="detail-request-date"></span></p>
                         <hr>
                         <p><strong>Reason Provided:</strong></p>
                         <div class="box has-background-light"><p id="detail-reason"></p></div>
                         <div id="verdict-details" class="is-hidden">
                             <hr>
-                            <p><strong>Verdict:</strong> <span id="detail-verdict-status"></span> by <span id="detail-processed-by"></span> on <span id="detail-verdict-date"></span></p>
+                            <p><strong>Verdict:</strong> <span class="has-text-weight-bold" id="detail-verdict-status"></span></p>
                             <p><strong>Processed By:</strong> <span id="detail-processed-by"></span></p>
                             <p><strong>Date Processed:</strong> <span id="detail-verdict-date"></span></p>
                         </div>
@@ -140,5 +145,5 @@
     </body>
     <script src="/admin/assets/js/components.js"></script>
     <script src="/admin/assets/js/excuses.js"></script>
-    <script src="/node/bulma-steps/dist/js/bulma-steps.min.js"></script>
+    <!-- <script src="/node/bulma-steps/dist/js/bulma-steps.min.js"></script> -->
 </html>

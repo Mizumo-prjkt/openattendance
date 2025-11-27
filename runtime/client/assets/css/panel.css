@@ -1,0 +1,27 @@
+/* Basic styles for the client panel */
+.is-fullheight {
+    min-height: calc(100vh - 52px); /* 100% of viewport height minus the navbar height */
+}
+
+/* Make the sidebar sticky to the top of its container on desktop */
+#sidebar-placeholder {
+    position: sticky;
+    top: 52px; /* Height of the navbar */
+    height: calc(100vh - 52px); /* Full viewport height minus navbar */
+    overflow-y: auto; /* Add scroll to sidebar if its content is too long */
+}
+
+/* Mobile sidebar visibility when active */
+@media screen and (max-width: 768px) { /* Bulma's 'touch' breakpoint */
+    #sidebar-placeholder.is-active {
+        display: block !important; /* Override Bulma's is-hidden-touch */
+        position: fixed; /* Make it an overlay */
+        top: 52px;
+        left: 0;
+        width: 250px; /* Or whatever width is desired for mobile sidebar */
+        height: calc(100vh - 52px);
+        background-color: var(--background-color, white); /* Use theme background */
+        z-index: 100; /* Ensure it's above other content */
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+    }
+}

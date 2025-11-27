@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>My Class</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/client/assets/css/panel.css">
+        <link rel="stylesheet" href="/client/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title" id="class-title">My Advisory Class</h1>
+                    <h2 class="subtitle" id="class-subtitle">List of students under your advisory.</h2>
+
+                    <div class="box">
+                        <div class="table-container">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th></th> <!-- For profile image -->
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Classroom/Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-table-body">
+                                    <!-- Data will be populated by JavaScript -->
+                                    <tr><td colspan="4" class="has-text-centered">Loading student list...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Student Detail Modal -->
+        <div class="modal" id="student-detail-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" id="modal-student-name">Student Details</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="tabs is-boxed">
+                        <ul>
+                            <li class="is-active" data-tab="info-tab"><a><i class="fas fa-user-circle mr-2"></i>Info</a></li>
+                            <li data-tab="attendance-tab"><a><i class="fas fa-clipboard-list mr-2"></i>Attendance</a></li>
+                            <li data-tab="id-card-tab"><a><i class="fas fa-id-card mr-2"></i>ID Card</a></li>
+                            <li data-tab="sms-tab"><a><i class="fas fa-comment-sms mr-2"></i>SMS</a></li>
+                        </ul>
+                    </div>
+                    <div class="content">
+                        <!-- Info Tab -->
+                        <div id="info-tab" class="tab-pane">
+                            <div class="columns is-vcentered">
+                                <div class="column is-one-third has-text-centered">
+                                    <figure class="image is-128x128 is-inline-block">
+                                        <img id="modal-profile-image" src="https://bulma.io/images/placeholders/128x128.png" alt="Profile" class="is-rounded">
+                                    </figure>
+                                </div>
+                                <div class="column">
+                                    <p><strong>Student ID:</strong> <span id="modal-student-id"></span></p>
+                                    <p><strong>Phone:</strong> <span id="modal-phone"></span></p>
+                                    <p><strong>Address:</strong> <span id="modal-address">N/A</span></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="columns has-text-centered">
+                                <div class="column"><p class="heading">Present</p><p class="title" id="tally-present">0</p></div>
+                                <div class="column"><p class="heading">Absences</p><p class="title" id="tally-absent">0</p></div>
+                                <div class="column"><p class="heading">Excused</p><p class="title" id="tally-excused">0</p></div>
+                            </div>
+                            <hr>
+                            <h5 class="title is-5">Emergency Contact</h5>
+                            <p><strong>Name:</strong> <span id="modal-emergency-name">N/A</span></p>
+                            <p><strong>Phone:</strong> <span id="modal-emergency-phone">N/A</span></p>
+                            <p><strong>Relationship:</strong> <span id="modal-emergency-relationship">N/A</span></p>
+                        </div>
+                        <!-- Attendance Tab -->
+                        <div id="attendance-tab" class="tab-pane" style="display: none;">
+                            <h4 class="title is-5">Pending Excuse Requests</h4>
+                            <div id="pending-excuses-container">
+                                <!-- Pending excuses will be rendered here -->
+                                <p class="has-text-grey">Loading pending requests...</p>
+                            </div>
+                            <hr>
+                            <h4 class="title is-5">Submit New Excuse</h4>
+                            <p class="help mb-2">As the adviser, you can approve this excuse immediately.</p>
+                            <textarea class="textarea mb-2" id="new-excuse-reason" placeholder="Enter reason for absence..."></textarea>
+                            <input class="input mb-2" type="date" id="new-excuse-date">
+                            <button class="button is-primary" id="submit-new-excuse-btn">Submit and Approve</button>
+                            <button class="button" id="submit-for-review-btn">Submit for Admin Review</button>
+                        </div>
+                        <!-- ID Card Tab -->
+                        <div id="id-card-tab" class="tab-pane" style="display: none;">
+                            <h4 class="title is-5">Student ID Card</h4>
+                            <div class="box has-text-centered has-background-light" style="border: 2px dashed #dbdbdb; padding: 4rem;">ID Card Figure Placeholder</div>
+                        </div>
+                        <!-- SMS Tab -->
+                        <div id="sms-tab" class="tab-pane" style="display: none;">
+                            <h4 class="title is-5">Send SMS to Parent/Guardian</h4>
+                            <div class="field">
+                                <label class="label">Recipient</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="sms-recipient" placeholder="Emergency contact number will appear here" readonly>
+                                </div>
+                                <p class="help">SMS will be sent to the registered emergency contact number.</p>
+                            </div>
+                            <div class="field">
+                                <label class="label">Message</label>
+                                <div class="control">
+                                    <textarea class="textarea" id="sms-message" placeholder="Enter your message here..."></textarea>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <button class="button is-primary" id="send-sms-btn">Send Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </body>
+    <script src="/client/assets/js/components.js"></script>
+    <script src="/client/assets/js/my-class.js"></script>
+</html>

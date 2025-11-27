@@ -48,13 +48,16 @@ CREATE TABLE IF NOT EXISTS configurations (
 CREATE TABLE IF NOT EXISTS excused (
     excused_id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id TEXT NOT NULL,
-    staff_id TEXT NOT NULL, -- who processed the request
+    requester_staff_id TEXT NOT NULL,      -- Who initiated the request (staff_id)
+    processor_id TEXT,                     -- Who approved/rejected it (staff_id or admin_id)
+    processor_type TEXT CHECK (processor_type IN ('staff', 'admin')), -- Type of processor
     reason TEXT NOT NULL,
     request_datetime DATETIME NOT NULL,
     verdict_datetime DATETIME,
-    result TEXT CHECK (result IN ('excused', 'not_excused')),
+    result TEXT NOT NULL CHECK (result IN ('pending', 'excused', 'rejected')) DEFAULT 'pending',
     FOREIGN KEY (student_id) REFERENCES students(student_id),
-    FOREIGN KEY (staff_id) REFERENCES staff_accounts(staff_id)
+    FOREIGN KEY (requester_staff_id) REFERENCES staff_accounts(staff_id)
+    -- Note: We can't use a direct FOREIGN KEY for processor_id due to its dual nature.
 );
 
 -- Present table

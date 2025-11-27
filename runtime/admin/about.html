@@ -6,40 +6,68 @@
         <title>About System</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" >
-        <link rel="stylesheet" href="/shared/css/font-thme.css">
         <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <!-- <link rel="stylesheet" href="/shared/css/font-thme.css"> -->
         <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
         <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
         <link rel="stylesheet" href="/admin/assets/css/panel.css">
         <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
     </head>
     <body>
-        <!-- NVB -->
+        <!-- Navbar will be injected here -->
         <div id="navbar-placeholder"></div>
+
         <div class="columns is-gapless">
             <!-- Sidebar -->
             <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
                 <!-- Sidebar will be injected here -->
             </div>
+
+            <!-- Main Content -->
             <main class="column is-10 p-5">
                 <div class="container is-fluid" id="mainpst">
-                    <h1 class="title">About System</h1>
-                    <h2 class="subtitle">About system info</h2>
-                    <div class="box">
-                        <div class="has-text-centered mb-5">
-                            <img src="" id="branding_placeholder">
+                    <h1 class="title">About OpenAttendance</h1>
+                    <h2 class="subtitle">System information and acknowledgements.</h2>
+
+                    <div class="has-text-centered mb-5">
+                        <h1 class="title is-2" id="page-title">OpenAttendance</h1>
+                        <p class="subtitle">A free, open-source tool for managing students' attendance records</p>
+                    </div>
+                    <div class="content">
+                        <p>OpenAttendance is developed and maintained by a small, dedicated organization with the goal of providing powerful tools for the organization at a scale.</p>
+                        <p>The software is provided "AS IS" and free of charge under a permissive license, allowing you to use, examine, and rebrand it to fit your needs. The only restriction is on redistribution; the official and sole source for the software is its GitHub repository.</p>
+                        <div class="notification is-info is-light">
+                            <strong>Official Repository:</strong>
+                            <!-- Temporary -->
+                            <a href="https://github.com/Mizumo-prjkt/OpenAttendance" target="_blank" rel="noopener noreferrer">https://github.com/Mizumo-prjkt/OpenAttendance</a>
                         </div>
-                        <div class="has-text-centered mb-5">
-                            <h1 class="title is-2" id="page-title">OpenAttendance</h1>
-                            <p class="subtitle">A free, open-source tool for managing students' attendance records</p>
+                    </div>
+
+                    <div class="columns">
+                        <!-- System Information Card -->
+                        <div class="column">
+                            <div class="card">
+                                <header class="card-header"><p class="card-header-title">System Information</p></header>
+                                <div class="card-content">
+                                    <p><strong>System Name:</strong> OpenAttendance</p>
+                                    <p><strong>Version:</strong> 1.0.0-alpha</p>
+                                    <p><strong>License:</strong> MIT</p>
+                                    <p><strong>Repository:</strong> <a href="https://github.com/Mizumo-prjkt/OpenAttendance" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="content">
-                            <p>OpenAttendance is developed and maintained by a small, dedicated organization with the goal of providing powerful tools for the organization at a scale.</p>
-                            <p>The software is provided "AS IS" and free of charge under a permissive license, allowing you to use, examine, and rebrand it to fit your needs. The only restriction is on redistribution; the official and sole source for the software is its GitHub repository.</p>
-                            <div class="notification is-info is-light">
-                                <strong>Official Repository:</strong>
-                                <!-- Temporary -->
-                                <a href="https://github.com/Mizumo-prjkt" target="_blank" rel="noopener noreferrer">https://github.com/Mizumo-prjkt</a>
+
+                        <!-- OS Report Card -->
+                        <div class="column">
+                            <div class="card">
+                                <header class="card-header"><p class="card-header-title">OS Report</p></header>
+                                <div class="card-content">
+                                    <p><strong>Operating System:</strong> <span id="os-info">Loading...</span></p>
+                                    <p><strong>Node.js Version:</strong> <span id="node-version">Loading...</span></p>
+                                    <p><strong>Processor:</strong> <span id="cpu-info">Loading...</span></p>
+                                    <p><strong>Memory:</strong> <span id="memory-info">Loading...</span></p>
+                                    <p><strong>Storage:</strong> <span id="storage-info">Loading...</span></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,5 +76,5 @@
         </div>
     </body>
     <script src="/admin/assets/js/components.js"></script>
-
+    <script src="/admin/assets/js/about.js"></script>
 </html>

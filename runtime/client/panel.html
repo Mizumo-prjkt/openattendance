@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Staff Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <!-- <link rel="stylesheet" href="/shared/css/font-thme.css"> -->
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/client/assets/css/panel.css">
+        <link rel="stylesheet" href="/client/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Dashboard</h1>
+                    <h2 class="subtitle" id="welcome-message">Welcome, Staff Member!</h2>
+
+                    <!-- Teacher-specific dashboard -->
+                    <div id="teacher-dashboard" class="is-hidden">
+                        <div class="columns is-multiline">
+                            <!-- Profile Summary -->
+                            <div class="column is-one-third">
+                                <div class="card">
+                                    <header class="card-header"><p class="card-header-title">Profile Summary</p></header>
+                                    <div class="card-content">
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <figure class="image is-64x64">
+                                                    <img id="teacher-profile-img" class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Profile image">
+                                                </figure>
+                                            </div>
+                                            <div class="media-content">
+                                                <p class="title is-4-mobile is-5-tablet" id="teacher-name">Loading...</p>
+                                                <p class="subtitle is-6-mobile is-7-tablet" id="teacher-email">loading@email.com</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Advisory Class -->
+                            <div class="column is-one-third">
+                                <div class="card">
+                                    <header class="card-header"><p class="card-header-title">Advisory Class</p></header>
+                                    <div class="card-content has-text-centered">
+                                        <p class="title is-3-mobile is-4-tablet" id="advisory-class-name">Grade 10 - B</p>
+                                        <p class="subtitle is-5-mobile is-6-tablet">Classroom/Section</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Student Count -->
+                            <div class="column is-one-third">
+                                <div class="card">
+                                    <header class="card-header"><p class="card-header-title">Student Count</p></header>
+                                    <div class="card-content has-text-centered">
+                                        <p class="title is-3-mobile is-4-tablet" id="student-count">42</p>
+                                        <p class="subtitle is-5-mobile is-6-tablet">Students in Advisory</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Council/Other Staff Dashboard -->
+                    <div id="other-staff-dashboard" class="is-hidden">
+                        <div class="card">
+                            <header class="card-header"><p class="card-header-title">Profile</p></header>
+                            <div class="card-content">
+                                <p>Welcome! Your dashboard is ready.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Scanner Section -->
+                    <div class="card mt-5">
+                        <header class="card-header"><p class="card-header-title">Scan Student QR Code</p></header>
+                        <div class="card-content has-text-centered">
+                            <div id="qr-reader" style="width: 500px; max-width: 100%; margin: auto; border: 2px dashed #dbdbdb; min-height: 300px; display: flex; align-items: center; justify-content: center; position: relative;">
+                                <p class="has-text-grey" id="qr-reader-placeholder">Camera view will appear here</p>
+                            </div>
+                            <div class="buttons is-centered mt-4">
+                                <button class="button is-primary" id="start-scan-btn">Start Scanning</button>
+                                <button class="button is-danger is-hidden" id="stop-scan-btn">Stop Scanning</button>
+                            </div>
+                            <div id="qr-scan-result" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="/node/html5-qrcode/html5-qrcode.min.js"></script>
+    <script src="/client/assets/js/components.js"></script>
+    <script src="/client/assets/js/panel.js"></script>
+    <script src="/client/assets/js/logout.js"></script>
+</html>

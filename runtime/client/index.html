@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="/shared/css/fontstyle.css">
         <link rel="stylesheet" href="/shared/css/font-thme.css">
         <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
-        <link rel="stylesheet" href="/shared/css/override-bulma-nodark.css">
         <link rel="stylesheet" href="/client/assets/css/index-actionbtn.css">
     </head>
     <body>
@@ -49,14 +48,14 @@
                                 Light/Dark Mode
                             </a>
                             <hr class="navbar-divider">
-                            <a class="navbar-item">
-                                Log in
+                            <a class="navbar-item" id="logoutorin">
+                                Log in/out
                             </a>
                         </div>
                     </div>
                     <div class="navbar-item" style="display: none">
                         <div class="buttons">
-                            <a class="button is-primary">
+                            <a class="button is-primary" href="/client/panel">
                                 Scan QR Code
                             </a>
                         </div>
@@ -68,35 +67,26 @@
         <section class="hero is-fullheight-with-navbar">
             <div class="hero-body">
                 <div class="container has-text-centered">
-                    <div class="box">
-                        <h1 class="title is-1" id="school-namebrand">
+                    <div class="box" style="padding: 1.5rem;">
+                        <h1 class="title is-2-desktop is-4-mobile" id="school-namebrand">
                             OpenAttendance
                         </h1>
-                        <h2 class="subtitle is-3" id="current-datetime">
+                        <h2 class="subtitle is-4-desktop is-6-mobile" id="current-datetime">
                             Loading date and time...
                         </h2>
                         <hr>
                         <p class="is-size-5 mb-5">Please select an action to continue.</p>
-                        <!-- <div class="columns is-centered is-vcentered">
-                            <div class="column is-narrow">
-                                <button class="button is-primary is-large action-button">Scan Student ID</button>
-                            </div>
-                            <div class="column is-narrow">
-                                <button class="button is-info is-large action-button">Manual Entry</button>
-                            </div>
-                        </div> -->
-                        <div class="column is-centered is-vcentered">
-                            <div class="column is-narrow">
-                                <!-- This button should dynamically change from login to student audit -->
-                                <a class="button is-primary is-large action-button" id="action-redirect">Loading...</a>
-                            </div>
-                        </div>
+                        
+                        <!-- This button should dynamically change from login to student audit -->
+                        <a class="button is-primary is-large-desktop is-medium-mobile action-button" id="action-redirect">Loading...</a>
+                        
                     </div>
                 </div>
             </div>
         </section>
     </body>
     <script src="/shared/js/auth.js"></script>
+    <script src="/client/assets/js/index.js"></script>
     <script src="/shared/js/navbar-bulma.js"></script>
     <script src="/shared/js/timer.js"></script>
     <script src="/client/assets/js/button-index-center.js"></script>

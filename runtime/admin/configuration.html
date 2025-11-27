@@ -34,7 +34,7 @@
                         </ul>
                     </div>
 
-                    <!-- School Configuration Tab -->
+                    <!-- School Settings Tab -->
                     <div id="school-config" class="tab-pane is-active">
                         <div class="box">
                             <form id="config-form">
@@ -114,12 +114,14 @@
                         </div>
                     </div>
 
-                    <!-- SMS Configuration Tab -->
+                    <!-- SMS Settings Tab -->
                     <div id="sms-config" class="tab-pane" style="display: none;">
                         <div class="box">
                             <form id="sms-config-form">
                                 <div class="notification is-info is-light">
                                     These settings are stored securely in the server's environment file (`.env`) and are not directly accessible from the database.
+                                    <br>
+                                    Please edit them in your root file (./.env) to make changes. For now, the feature of checking the API is broken
                                 </div>
                                 <div class="field">
                                     <label class="label">SMS Provider</label>
@@ -132,7 +134,9 @@
                                 </div>
                                 <div class="field">
                                     <label class="label">Sender Name</label>
-                                    <div class="control"><input class="input" type="text" id="sms-sender-name" placeholder="e.g., OpenAttend"></div>
+                                    <div class="control">
+                                        <input class="input" type="text" id="sms-sender-name" placeholder="e.g., OpenAttend">
+                                    </div>
                                     <p class="help">The name that appears as the sender of the SMS (max 11 characters).</p>
                                 </div>
                                 <hr>

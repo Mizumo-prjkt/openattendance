@@ -20,6 +20,8 @@ const multer = require('multer');
 const session = require('express-session');
 const PORT = 3999; // Our setup port
 const crypto = require('crypto');
+const os = require('os');
+const checkDiskSpace = require('check-disk-space').default;
 const mkdirp = require('mkdirp');
 let debugMode = false;
 
@@ -33,6 +35,12 @@ const schoolLogoUploadDir = path.join(__dirname, 'runtime/shared/images/school_l
 if (!fs.existsSync(schoolLogoUploadDir)) {
     fs.mkdirSync(schoolLogoUploadDir, { recursive: true });
 }
+// Create a directory for database backups
+const backupsDir = path.join(__dirname, 'database', 'backups');
+if (!fs.existsSync(backupsDir)) {
+    fs.mkdirSync(backupsDir, { recursive: true });
+}
+
 
 let logFilePath;
 let argenv = process.argv.slice(2);
@@ -144,6 +152,86 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+/**
+ * Runs database migrations to update the schema of an existing database.
+ */
+function runMigrations() {
+    db.get("PRAGMA user_version;", (err, row) => {
+        if (err) {
+            return console.error("Error getting database version:", err.message);
+        }
+
+        const currentVersion = row.user_version;
+        console.log(`Current database version: ${currentVersion}`);
+
+        // --- Migration from Version 0 to Version 1 ---
+        // This migration updates the 'excused' table to differentiate between
+        // the requester and the processor of an excuse.
+        if (currentVersion < 1) {
+            console.log("Applying migration to version 1: Updating 'excused' table...");
+            db.serialize(() => {
+                db.exec(`
+                    PRAGMA foreign_keys=off;
+                    BEGIN TRANSACTION;
+
+                    -- Rename the old table
+                    ALTER TABLE excused RENAME TO excused_old;
+
+                    -- Create the new table with the correct schema
+                    CREATE TABLE excused (
+                        excused_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        student_id TEXT NOT NULL,
+                        requester_staff_id TEXT NOT NULL,
+                        processor_admin_id INTEGER,
+                        reason TEXT NOT NULL,
+                        request_datetime DATETIME NOT NULL,
+                        verdict_datetime DATETIME,
+                        result TEXT NOT NULL CHECK (result IN ('pending', 'excused', 'rejected')) DEFAULT 'pending',
+                        FOREIGN KEY (student_id) REFERENCES students(student_id),
+                        FOREIGN KEY (requester_staff_id) REFERENCES staff_accounts(staff_id),
+                        FOREIGN KEY (processor_admin_id) REFERENCES admin_login(admin_id)
+                    );
+
+                    -- Copy data from the old table to the new one, mapping the columns
+                    INSERT INTO excused (excused_id, student_id, requester_staff_id, reason, request_datetime, verdict_datetime, result, processor_admin_id)
+                    SELECT excused_id, student_id, staff_id, reason, request_datetime, verdict_datetime, COALESCE(result, 'pending'), processor_admin_id
+                    FROM excused_old;
+
+                    DROP TABLE excused_old;
+                    PRAGMA user_version = 1;
+                    COMMIT;
+                `, (err) => {
+                    if (err) console.error("Migration to version 1 failed:", err.message);
+                    else console.log("Successfully migrated database to version 1.");
+                });
+            });
+        }
+
+        // --- Migration from Version 1 to Version 2 ---
+        // This migration adds the sms_provider_settings table.
+        if (currentVersion < 2) {
+            console.log("Applying migration to version 2: Creating 'sms_provider_settings' table...");
+            db.serialize(() => {
+                db.exec(`
+                    CREATE TABLE IF NOT EXISTS sms_provider_settings (
+                        id INTEGER PRIMARY KEY CHECK (id = 1),
+                        provider_name TEXT NOT NULL,
+                        sender_name TEXT,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                    PRAGMA user_version = 2;
+                `, (err) => {
+                    if (err) console.error("Migration to version 2 failed:", err.message);
+                    else console.log("Successfully migrated database to version 2.");
+                });
+            });
+        }
+    });
+}
+
+// Run migrations on startup
+runMigrations();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -222,6 +310,22 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'runtime/client/login.html'));
 });
 
+app.get('/client/panel', (req, res) => {
+    if (req.session.staffId) {
+        res.sendFile(path.join(__dirname, 'runtime/client/panel.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.get('/client/excuse', (req, res) => {
+    if (req.session.staffId) {
+        res.sendFile(path.join(__dirname, 'runtime/client/excuse.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
 app.get('/admin', (req, res) => {
     if (!req.session.adminId) {
         res.redirect('/admin-login');
@@ -290,11 +394,35 @@ app.get('/admin-configuration', (req, res) => {
     }
 });
 
+app.get('/admin-advanced', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/advanced.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
 app.get('/admin-logs', (req, res) => {
     if (req.session.adminId) {
         res.sendFile(path.join(__dirname, 'runtime/admin/system-logs.html'));
     } else {
         res.redirect('/admin-login');
+    }
+});
+
+app.get('/client/my-class', (req, res) => {
+    if (req.session.staffId) {
+        res.sendFile(path.join(__dirname, 'runtime/client/my-class.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.get('/client-manual-entry', (req, res) => {
+    if (req.session.staffId) {
+        res.sendFile(path.join(__dirname, 'runtime/client/manual-entry.html'));
+    } else {
+        res.redirect('/login');
     }
 });
 
@@ -304,6 +432,14 @@ app.get('/admin/_navbar.html', (req, res) => {
 
 app.get('/admin/_sidebar.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'runtime/admin/_sidebar.html'));
+});
+
+app.get('/client/_navbar.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'runtime/client/_navbar.html'));
+});
+
+app.get('/client/_sidebar.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'runtime/client/_sidebar.html'));
 });
 
 // API is here
@@ -790,7 +926,7 @@ app.get('/api/admin/attendance-logs', (req, res) => {
             UNION ALL
             SELECT 'a' || absent_id as log_id, date(a.absent_datetime, 'localtime') as log_date, 'Absent' as status, NULL as time_in, NULL as time_out, a.student_id, a.staff_id, a.reason FROM absent a
             UNION ALL
-            SELECT 'e' || excused_id as log_id, date(e.request_datetime, 'localtime') as log_date, 'Excused' as status, NULL as time_in, NULL as time_out, e.student_id, e.staff_id, e.reason FROM excused e WHERE e.result = 'excused'
+            SELECT 'e' || excused_id as log_id, date(e.request_datetime, 'localtime') as log_date, 'Excused' as status, NULL as time_in, NULL as time_out, e.student_id, e.requester_staff_id as staff_id, e.reason FROM excused e WHERE e.result = 'excused'
         ) as unified_logs
         JOIN students s ON s.student_id = unified_logs.student_id
         LEFT JOIN staff_accounts st ON st.staff_id = unified_logs.staff_id
@@ -838,38 +974,162 @@ app.post('/api/ntp', async (req, res) => {
     }
 });
 
+// This is the login for staff on the client page
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-        debugLogWriteToFile('Login failed: Username or password not provided.');
+        debugLogWriteToFile('Staff login failed: Username or password not provided.');
         return res.status(400).json({ error: 'Username and password are required.' });
     }
 
-    const query = 'SELECT * FROM admin_login WHERE username = ?';
-    db.get(query, [username], (err, admin) => {
+    // Correctly query the staff_login and staff_accounts tables
+    const query = `
+        SELECT sl.staff_id, sl.password, sa.active
+        FROM staff_login sl
+        JOIN staff_accounts sa ON sl.staff_id = sa.staff_id
+        WHERE sl.username = ?
+    `;
+
+    db.get(query, [username], (err, staff) => {
         if (err) {
-            debugLogWriteToFile(`DB Error on login: ${err.message}`);
+            debugLogWriteToFile(`DB Error on staff login: ${err.message}`);
             return res.status(500).json({ error: 'Database error during login.' });
         }
 
-        if (!admin) {
-            debugLogWriteToFile(`Login failed: User '${username}' not found.`);
-            return res.status(404).json({ error: 'User not found.' });
+        if (!staff || !staff.active) {
+            debugLogWriteToFile(`Staff login failed for '${username}': User not found or inactive.`);
+            return res.status(401).json({ error: 'Invalid credentials or inactive account.' });
         }
 
-        bcrypt.compare(password, admin.password, (compareErr, isMatch) => {
+        bcrypt.compare(password, staff.password, (compareErr, isMatch) => {
             if (compareErr) {
-                debugLogWriteToFile(`Bcrypt compare error: ${compareErr.message}`);
+                debugLogWriteToFile(`Bcrypt compare error for staff '${username}': ${compareErr.message}`);
                 return res.status(500).json({ error: 'Error during password comparison.' });
             }
 
             if (isMatch) {
+                req.session.staffId = staff.staff_id; // Create the staff session
+                debugLogWriteToFile(`Staff '${username}' logged in successfully. Session created.`);
                 res.json({ success: true, message: 'Login successful.' });
             } else {
+                debugLogWriteToFile(`Staff login failed for '${username}': Invalid credentials.`);
                 res.status(401).json({ success: false, error: 'Invalid credentials.' });
             }
         });
+    });
+});
+
+app.post('/api/client/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                debugLogWriteToFile('Client logout failed during session destruction.');
+                return res.status(500).json({ error: 'Could not log out.' });
+            }
+            debugLogWriteToFile('Client session destroyed successfully.');
+            res.clearCookie('connect.sid');
+            return res.json({ message: 'Logout successful.' });
+        });
+    } else {
+        res.json({ message: 'No active session to log out from.' });
+    }
+});
+
+// GET /api/client/me - Get details for the currently logged-in staff member
+app.get('/api/client/me', (req, res) => {
+    if (!req.session.staffId) {
+        return res.status(401).json({ error: "Not authenticated." });
+    }
+
+    const staffId = req.session.staffId;
+
+    const sql = `
+        SELECT 
+            s.staff_id, 
+            s.name, 
+            s.email_address, 
+            s.staff_type, 
+            s.adviser_unit, 
+            s.profile_image_path
+        FROM staff_accounts s
+        WHERE s.staff_id = ?
+    `;
+
+    db.get(sql, [staffId], (err, row) => {
+        if (err) {
+            debugLogWriteToFile(`DB Error fetching staff profile for ${staffId}: ${err.message}`);
+            return res.status(500).json({ error: "Database error fetching staff profile." });
+        }
+        res.json(row || {});
+    });
+});
+
+// GET /api/client/my-class-students - Get students for the logged-in teacher's advisory class
+app.get('/api/client/my-class-students', (req, res) => {
+    if (!req.session.staffId) {
+        return res.status(401).json({ error: "Not authenticated." });
+    }
+
+    const staffId = req.session.staffId;
+
+    // First, get the teacher's adviser_unit
+    db.get('SELECT adviser_unit FROM staff_accounts WHERE staff_id = ? AND staff_type = "teacher"', [staffId], (err, teacher) => {
+        if (err) return res.status(500).json({ error: "Database error checking teacher status." });
+        if (!teacher || !teacher.adviser_unit) {
+            return res.status(403).json({ error: "You are not a teacher with an assigned advisory class." });
+        }
+
+        // Then, get all students in that class
+        const sql = `
+            SELECT 
+                id, student_id, first_name, middle_name, last_name, 
+                phone_number, address, emergency_contact_name, 
+                emergency_contact_phone, emergency_contact_relationship, 
+                profile_image_path, classroom_section
+            FROM students 
+            WHERE classroom_section = ? 
+            ORDER BY last_name, first_name
+        `;
+        db.all(sql, [teacher.adviser_unit], (err, students) => {
+            if (err) return res.status(500).json({ error: "Database error fetching students." });
+            res.json(students || []);
+        });
+    });
+});
+
+// POST /api/client/excuses - Submit a new excuse request
+app.post('/api/client/excuses', (req, res) => {
+    if (!req.session.staffId) {
+        return res.status(401).json({ error: "Not authenticated." });
+    }
+
+    const staffId = req.session.staffId;
+    const { student_id, absence_date, reason, approve_now } = req.body;
+
+    if (!student_id || !absence_date || !reason) {
+        return res.status(400).json({ error: "Student, date of absence, and reason are required." });
+    }
+
+    const now = new Date();
+    const requestDateTime = new Date(`${absence_date}T${now.toTimeString().split(' ')[0]}`);
+    
+    let sql, params;
+    if (approve_now) {
+        // Teacher is approving their own request on the get-go
+        sql = `INSERT INTO excused (student_id, requester_staff_id, reason, request_datetime, result, verdict_datetime, processor_id, processor_type) 
+               VALUES (?, ?, ?, ?, 'excused', ?, ?, 'staff')`;
+        params = [student_id, staffId, reason, requestDateTime.toISOString(), now.toISOString(), staffId];
+    } else {
+        // Standard request that goes to pending
+        sql = `INSERT INTO excused (student_id, requester_staff_id, reason, request_datetime, result) 
+               VALUES (?, ?, ?, ?, 'pending')`;
+        params = [student_id, staffId, reason, requestDateTime.toISOString()];
+    }
+
+    db.run(sql, params, function(err) {
+        if (err) return res.status(500).json({ error: "Database error submitting excuse request." });
+        res.status(201).json({ message: "Excuse request submitted successfully. It is now pending review by an administrator." });
     });
 });
 
@@ -1087,17 +1347,24 @@ app.get('/api/admin/excuses', (req, res) => {
     const { status } = req.query;
     let sql = `
         SELECT 
-            e.excused_id, e.student_id, e.staff_id, e.reason, e.request_datetime, e.verdict_datetime, e.result,
-            s.first_name || ' ' || s.last_name as student_name
+            e.excused_id, e.student_id, e.requester_staff_id, e.reason, e.request_datetime, e.verdict_datetime, e.result,
+            s.first_name || ' ' || s.last_name as student_name,
+            req_sa.name as requester_name,
+            CASE 
+                WHEN e.processor_type = 'admin' THEN proc_admin.username
+                WHEN e.processor_type = 'staff' THEN proc_staff.name
+                ELSE NULL 
+            END as processed_by
         FROM excused e
-        JOIN students s ON e.student_id = s.student_id
+        LEFT JOIN students s ON e.student_id = s.student_id
+        LEFT JOIN staff_accounts req_sa ON e.requester_staff_id = req_sa.staff_id
+        LEFT JOIN admin_login proc_admin ON e.processor_id = proc_admin.admin_id AND e.processor_type = 'admin'
+        LEFT JOIN staff_accounts proc_staff ON e.processor_id = proc_staff.staff_id AND e.processor_type = 'staff'
     `;
     let params = [];
     if (status) {
         sql += ' WHERE e.result = ?';
         params.push(status);
-    } else {
-        sql += ' WHERE e.result IS NULL'; // Only pending if result is NULL
     }
     sql += ' ORDER BY e.request_datetime DESC';
 
@@ -1117,24 +1384,24 @@ app.post('/api/admin/excuses/:id/:action', (req, res) => {
     }
 
     const { id, action } = req.params;
-    const staffId = 'admin'; // Replace with actual staff ID from session
+    const adminId = req.session.adminId; // Use the actual admin ID from the session
     const verdictTime = new Date().toISOString();
 
     let result;
     if (action === 'approve') {
-        result = 'excused';
+        result = 'excused'; // Matches the new schema
     } else if (action === 'reject') {
-        result = 'not_excused';
+        result = 'rejected'; // Matches the new schema
     } else {
         return res.status(400).json({ error: "Invalid action. Must be 'approve' or 'reject'." });
     }
 
     const sql = `
         UPDATE excused 
-        SET result = ?, verdict_datetime = ?, staff_id = ?
+        SET result = ?, verdict_datetime = ?, processor_id = ?, processor_type = 'admin'
         WHERE excused_id = ?
     `;
-    db.run(sql, [result, verdictTime, staffId, id], function(err) {
+    db.run(sql, [result, verdictTime, adminId, id], function(err) {
         if (err) {
             console.error("Excuse update error:", err.message);
             return res.status(500).json({ error: `Database error while processing excuse request.`, details: err.message });
@@ -1146,11 +1413,148 @@ app.post('/api/admin/excuses/:id/:action', (req, res) => {
     });
 });
 
+// --- New Endpoints for Student Lookup ---
 
+// GET /api/client/classrooms - Get a unique list of all classroom sections
+app.get('/api/client/classrooms', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
 
+    const sql = `SELECT DISTINCT classroom_section FROM students WHERE classroom_section IS NOT NULL ORDER BY classroom_section`;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error fetching classrooms." });
+        res.json(rows.map(r => r.classroom_section));
+    });
+});
 
+// GET /api/client/students/search - Search for students with filters
+app.get('/api/client/students/search', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
 
+    const { term, classroom } = req.query;
 
+    let sql = `
+        SELECT 
+            id, student_id, first_name, middle_name, last_name, 
+            phone_number, address, emergency_contact_name, 
+            emergency_contact_phone, emergency_contact_relationship, 
+            profile_image_path, classroom_section
+        FROM students
+    `;
+    
+    const whereClauses = [];
+    const params = [];
+
+    if (term) {
+        whereClauses.push(`(first_name LIKE ? OR last_name LIKE ? OR student_id LIKE ?)`);
+        const searchTerm = `%${term}%`;
+        params.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    if (classroom) {
+        whereClauses.push(`classroom_section = ?`);
+        params.push(classroom);
+    }
+
+    if (whereClauses.length > 0) sql += ` WHERE ${whereClauses.join(' AND ')}`;
+    sql += ' ORDER BY last_name, first_name LIMIT 50';
+
+    db.all(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error searching students.", details: err.message });
+        res.json(rows || []);
+    });
+});
+
+// --- System Information API ---
+
+// GET /api/admin/system-info - Retrieve OS and hardware information
+app.get('/api/admin/system-info', async (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    try {
+        const cpus = os.cpus();
+        const diskSpace = await checkDiskSpace('/'); // Check the root drive
+
+        const formatBytes = (bytes) => {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        };
+
+        const systemInfo = {
+            os: `${os.type()} ${os.platform()} ${os.arch()} - ${os.release()}`,
+            nodeVersion: process.version,
+            cpu: `${cpus[0].model} (${cpus.length} cores)`,
+            memory: {
+                total: formatBytes(os.totalmem()),
+                free: formatBytes(os.freemem()),
+            },
+            storage: {
+                total: formatBytes(diskSpace.size),
+                free: formatBytes(diskSpace.free),
+            }
+        };
+
+        res.json(systemInfo);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve system information.", details: error.message });
+    }
+});
+
+// --- New Endpoints for "My Class" Page ---
+
+// GET /api/client/students/:studentId/attendance - Get stats and excuses for a single student
+app.get('/api/client/students/:studentId/attendance', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const { studentId } = req.params;
+
+    const queries = {
+        stats: `
+            SELECT
+                (SELECT COUNT(*) FROM present WHERE student_id = ?) as present_count,
+                (SELECT COUNT(*) FROM absent WHERE student_id = ?) as absent_count,
+                (SELECT COUNT(*) FROM excused WHERE student_id = ? AND result = 'excused') as excused_count
+        `,
+        excuses: `
+            SELECT excused_id, reason, request_datetime, result 
+            FROM excused 
+            WHERE student_id = ? AND result = 'pending'
+            ORDER BY request_datetime DESC
+        `
+    };
+
+    Promise.all([
+        new Promise((resolve, reject) => db.get(queries.stats, [studentId, studentId, studentId], (err, row) => err ? reject(err) : resolve(row))),
+        new Promise((resolve, reject) => db.all(queries.excuses, [studentId], (err, rows) => err ? reject(err) : resolve(rows)))
+    ]).then(([stats, excuses]) => {
+        res.json({ stats, excuses });
+    }).catch(err => {
+        res.status(500).json({ error: "Database error fetching student attendance data.", details: err.message });
+    });
+});
+
+// POST /api/client/excuses/:id/:action - Teacher approves/rejects an excuse
+app.post('/api/client/excuses/:id/:action', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+    // This reuses the admin logic, but sets the processor_type to 'staff'
+    req.session.adminId = req.session.staffId; // Temporarily use staffId as adminId for the logic
+    req.body.processor_type = 'staff'; // Add a flag for the logic
+    // The logic for approving/rejecting is nearly identical to the admin one.
+    // For simplicity in this context, we can assume a similar implementation.
+    // A real implementation would refactor the shared logic into a single function.
+    const verdictTime = new Date().toISOString();
+    const { id, action } = req.params;
+    const result = action === 'approve' ? 'excused' : 'rejected';
+    const sql = `UPDATE excused SET result = ?, verdict_datetime = ?, processor_id = ?, processor_type = 'staff' WHERE excused_id = ?`;
+    db.run(sql, [result, verdictTime, req.session.staffId, id], function(err) {
+        if (err) return res.status(500).json({ error: "Database error processing excuse." });
+        res.json({ message: `Excuse request ${action}d successfully.` });
+    });
+});
 
 
 
@@ -1169,12 +1573,23 @@ app.get('/api/admin/sms-configuration', (req, res) => {
             return res.status(500).json({ error: "Database error retrieving SMS configuration." });
         }
         
-        const isApiKeySet = !!process.env.SMS_API_KEY;
+        const apiKey = process.env.SMS_API_KEY;
+        let maskedApiKey = null;
+        if (apiKey && apiKey.length > 8) {
+            // Show first 4 and last 4 characters for confirmation
+            maskedApiKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
+        } else if (apiKey) {
+            maskedApiKey = 'Key is set (too short to mask)';
+        }
 
         res.json({
             provider_name: row?.provider_name || 'semaphore',
             sender_name: row?.sender_name || '',
-            is_api_key_set: isApiKeySet
+            // For now, the API address is hardcoded as we only support Semaphore
+            api_address: 'https://api.semaphore.co/api/v4/messages',
+            // Send a masked version of the key for display purposes
+            masked_api_key: maskedApiKey,
+            is_api_key_set: !!apiKey
         });
     });
 });
@@ -1215,6 +1630,103 @@ app.post('/api/admin/sms-configuration', (req, res) => {
             return res.status(500).json({ error: "Database error saving SMS settings." });
         }
         res.status(200).json({ message: "SMS configuration saved successfully." });
+    });
+});
+
+// --- Advanced Database Management API ---
+
+// GET /api/admin/database/backups - List all available backups
+app.get('/api/admin/database/backups', async (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    try {
+        const files = await fs.promises.readdir(backupsDir);
+        const backupDetails = await Promise.all(
+            files
+                .filter(file => file.endsWith('.db'))
+                .map(async (file) => {
+                    const filePath = path.join(backupsDir, file);
+                    const stats = await fs.promises.stat(filePath);
+                    return {
+                        filename: file,
+                        createdAt: stats.birthtime,
+                        size: stats.size, // size in bytes
+                    };
+                })
+        );
+
+        // Sort by creation date, newest first
+        backupDetails.sort((a, b) => b.createdAt - a.createdAt);
+
+        res.json(backupDetails);
+    } catch (error) {
+        console.error("Error listing backups:", error);
+        res.status(500).json({ error: "Failed to list database backups." });
+    }
+});
+
+// POST /api/admin/database/backup - Create a new database backup
+app.post('/api/admin/database/backup', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const now = new Date();
+    const timestamp = now.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_');
+    const backupFilename = `main-backup-${timestamp}.db`;
+    const backupFilePath = path.join(backupsDir, backupFilename);
+
+    fs.copyFile(dbPath, backupFilePath, (err) => {
+        if (err) {
+            console.error("Error creating backup:", err);
+            return res.status(500).json({ error: "Failed to create database backup." });
+        }
+        res.status(201).json({ message: `Backup '${backupFilename}' created successfully.` });
+    });
+});
+
+// GET /api/admin/database/backups/:filename - Download a specific backup
+app.get('/api/admin/database/backups/:filename', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { filename } = req.params;
+    // Sanitize filename to prevent directory traversal attacks
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(backupsDir, safeFilename);
+
+    // Check if file exists to prevent errors
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, safeFilename, (err) => {
+            if (err) {
+                console.error("Error downloading backup:", err);
+                res.status(500).send("Could not download the file.");
+            }
+        });
+    } else {
+        res.status(404).send("File not found.");
+    }
+});
+
+// DELETE /api/admin/database/backups/:filename - Delete a specific backup
+app.delete('/api/admin/database/backups/:filename', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { filename } = req.params;
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(backupsDir, safeFilename);
+
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error("Error deleting backup:", err);
+            return res.status(500).json({ error: "Failed to delete the backup file. It may have already been deleted." });
+        }
+        res.json({ message: `Backup '${safeFilename}' deleted successfully.` });
     });
 });
 

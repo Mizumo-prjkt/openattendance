@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Advanced Settings</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Advanced Settings</h1>
+                    <h2 class="subtitle">Perform low-level system and database operations.</h2>
+
+                    <!-- Create Backup Section -->
+                    <div class="box">
+                        <h3 class="title is-5">Database Backup</h3>
+                        <div class="is-flex is-justify-content-space-between is-align-items-center">
+                            <div>
+                                <p>Create a timestamped backup of the current application database.</p>
+                                <p class="help">Backups are stored in the `database/backups` directory.</p>
+                            </div>
+                            <button class="button is-primary" id="create-backup-btn">
+                                <span class="icon"><i class="fas fa-plus-circle"></i></span>
+                                <span>Create New Backup</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manage Backups Section -->
+                    <div class="box">
+                        <h3 class="title is-5">Manage Existing Backups</h3>
+                        <div class="table-container">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Date Created</th>
+                                        <th>File Size</th>
+                                        <th class="has-text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="backups-table-body">
+                                    <!-- Mockup Data -->
+                                    <tr>
+                                        <td>main-backup-2025-11-28-10-30-00.db</td>
+                                        <td>2025-11-28 10:30 AM</td>
+                                        <td>1.2 MB</td>
+                                        <td class="has-text-right">
+                                            <button class="button is-small is-link"><span class="icon"><i class="fas fa-download"></i></span><span>Download</span></button>
+                                            <button class="button is-small is-danger"><span class="icon"><i class="fas fa-trash"></i></span><span>Delete</span></button>
+                                        </td>
+                                    </tr>
+                                    <tr><td colspan="4" class="has-text-centered">Loading backup list...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/advanced.js"></script>
+</html>

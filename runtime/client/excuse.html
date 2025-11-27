@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Submit Excuse</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/shared/css/font-thme.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/client/assets/css/panel.css">
+        <link rel="stylesheet" href="/client/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Submit Excuse Request</h1>
+                    <h2 class="subtitle">Submit an excuse for a student's absence.</h2>
+
+                    <div class="box">
+                        <form id="excuse-form">
+                            <!-- Student Selection for Teachers -->
+                            <div class="field is-hidden" id="teacher-student-selector">
+                                <label class="label">Student</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="student-select" required>
+                                            <option value="">Select a student from your class...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Student ID Input for Other Staff -->
+                            <div class="field is-hidden" id="other-staff-student-input">
+                                <label class="label">Student ID</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="student-id-input" placeholder="Enter the student's ID number" required>
+                                </div>
+                                <div class="help">
+                                    Please enter the exact Student ID of the student you are submitting an excuse for.
+                                </div>
+                            </div>
+
+                            <!-- Date of Absence -->
+                            <div class="field">
+                                <label class="label">Date of Absence</label>
+                                <div class="control">
+                                    <input class="input" type="date" id="absence-date" required>
+                                </div>
+                            </div>
+
+                            <!-- Reason -->
+                            <div class="field">
+                                <label class="label">Reason</label>
+                                <div class="control">
+                                    <textarea class="textarea" id="excuse-reason" placeholder="Please provide a detailed reason for the absence (e.g., medical appointment, family emergency)." required></textarea>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Submit Button -->
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-primary" id="submit-excuse-btn">Submit Request</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="/client/assets/js/components.js"></script>
+    <script src="/client/assets/js/excuse.js"></script>
+</html>
