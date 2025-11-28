@@ -83,7 +83,8 @@
                         <ul>
                             <li class="is-active" data-tab="info-tab"><a><i class="fas fa-user-circle mr-2"></i>Info</a></li>
                             <li data-tab="attendance-tab"><a><i class="fas fa-clipboard-list mr-2"></i>Attendance</a></li>
-                            <li data-tab="id-card-tab"><a><i class="fas fa-id-card mr-2"></i>ID Card</a></li>
+                            <li data-tab="events-tab"><a><i class="fas fa-calendar-check mr-2"></i>Events</a></li>
+                            <!-- <li data-tab="id-card-tab"><a><i class="fas fa-id-card mr-2"></i>ID Card</a></li> -->
                         </ul>
                     </div>
                     <div class="content">
@@ -115,10 +116,38 @@
                         </div>
                         <!-- Attendance Tab -->
                         <div id="attendance-tab" class="tab-pane" style="display: none;">
-                            <h4 class="title is-5">Pending Excuse Requests</h4>
+                            <h4 class="title is-5 mt-5">Pending Excuse Requests</h4>
                             <div id="modal-pending-excuses-container">
-                                <!-- Pending excuses will be rendered here by JS -->
                                 <p class="has-text-grey">Loading pending requests...</p>
+                            </div>
+                            <hr>
+                            <div class="columns has-text-centered">
+                                <div class="column"><p class="heading">Present</p><p class="title" id="tally-present">0</p></div>
+                                <div class="column"><p class="heading">Absences</p><p class="title" id="tally-absent">0</p></div>
+                                <div class="column"><p class="heading">Excused</p><p class="title" id="tally-excused">0</p></div>
+                            </div>
+                        </div>
+                        <!-- Events Tab -->
+                        <div id="events-tab" class="tab-pane" style="display: none;">
+                            <div class="field">
+                                <label class="label">Select Event to Manage</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="event-master-selector">
+                                            <option value="">Loading ongoing events...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- This section is hidden until an event is selected -->
+                            <div id="event-management-section" class="is-hidden">
+                                <hr>
+                                <h4 class="title is-5">Event Time Log</h4>
+                                <div class="box" id="event-time-log-container">
+                                    <!-- Granular attendance slots will be rendered here -->
+                                    <p class="has-text-grey">Select an event to see time slots.</p>
+                                </div>
                             </div>
                         </div>
                         <!-- ID Card Tab -->

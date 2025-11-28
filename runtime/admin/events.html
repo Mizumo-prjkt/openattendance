@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Manage Events</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Manage Events</h1>
+                    <h2 class="subtitle">Create, view, and manage school events.</h2>
+
+                    <div class="block">
+                        <button class="button is-primary" id="create-event-btn">
+                            <span class="icon"><i class="fas fa-plus"></i></span>
+                            <span>Create New Event</span>
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table is-fullwidth is-striped is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Location</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-table-body">
+                                <tr>
+                                    <td colspan="6" class="has-text-centered">Loading events...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Add/Edit Event Modal -->
+        <div class="modal" id="event-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" id="event-modal-title">Create New Event</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form id="event-form">
+                        <input type="hidden" id="event-db-id">
+                        <div class="field">
+                            <label class="label">Event Name <span class="has-text-danger">*</span></label>
+                            <div class="control"><input class="input" type="text" id="event-name" required></div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Description</label>
+                            <div class="control"><textarea class="textarea" id="event-description"></textarea></div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Location</label>
+                            <div class="control"><input class="input" type="text" id="event-location"></div>
+                        </div>
+                        <div class="columns">
+                            <div class="column"><div class="field"><label class="label">Start Date & Time <span class="has-text-danger">*</span></label><div class="control"><input class="input" type="datetime-local" id="event-start" required></div></div></div>
+                            <div class="column"><div class="field"><label class="label">End Date & Time <span class="has-text-danger">*</span></label><div class="control"><input class="input" type="datetime-local" id="event-end" required></div></div></div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Status</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="event-status">
+                                        <option value="planned">Planned</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="save-event-btn">Save</button>
+                    <button class="button" id="cancel-event-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/events.js"></script>
+</html>

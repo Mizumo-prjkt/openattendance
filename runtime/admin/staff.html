@@ -152,7 +152,7 @@
                         <div class="field">
                             <label class="label">Profile Image (Optional)</label>
                             <div class="control">
-                                <input class="input" type="file" id="new-staff-image" accept="image/*">
+                                <input class="input" type="file" id="new-staff-profile-image" accept="image/*">
                             </div>
                         </div>
                         <hr>
@@ -278,6 +278,12 @@
                                 <input class="input" type="password" id="edit-staff-confirm-password" placeholder="Confirm new password if changed">
                             </div>
                         </div>
+                        <div class="field">
+                            <label class="label">New Profile Image (Optional)</label>
+                            <div class="control">
+                                <input class="input" type="file" id="edit-staff-profile-image" accept="image/*">
+                            </div>
+                        </div>
                     </form>
                 </section>
                 <footer class="modal-card-foot">
@@ -318,7 +324,40 @@
                 </footer>
             </div>
         </div>
+        <!-- Cropper Modal (copied from students.html) -->
+        <div class="modal" id="cropper-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Crop Profile Image</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div>
+                        <cropper-canvas background style="height: 400px;">
+                            <cropper-image id="cropper-image-element" alt="Image to crop" rotatable scalable translatable></cropper-image>
+                            <cropper-shade hidden></cropper-shade>
+                            <cropper-handle action="select" plain></cropper-handle>
+                            <cropper-selection id="cropper-selection-element" aspect-ratio="1" movable resizable initial-coverage="0.8">
+                                <cropper-grid role="grid" covered></cropper-grid>
+                                <cropper-crosshair centered></cropper-crosshair>
+                                <cropper-handle action="move" theme-color="rgba(255, 255, 255, 0.35)"></cropper-handle>
+                                <cropper-handle action="n-resize"></cropper-handle>
+                                <cropper-handle action="e-resize"></cropper-handle>
+                                <cropper-handle action="s-resize"></cropper-handle>
+                                <cropper-handle action="w-resize"></cropper-handle>
+                            </cropper-selection>
+                        </cropper-canvas>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="apply-crop-btn">Apply Crop</button>
+                    <button class="button" id="cancel-crop-btn">Cancel</button>
+                </footer>
+            </div>
+        </div>
     </body>
     <script src="/admin/assets/js/components.js"></script>
+    <script type="module" src="/node/cropperjs/dist/cropper.js"></script>
     <script src="/admin/assets/js/staff.js"></script>
 </html>

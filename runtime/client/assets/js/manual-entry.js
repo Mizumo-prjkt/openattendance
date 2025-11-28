@@ -92,6 +92,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    async function loadAndRenderEventTimeLogs(studentId, eventId) {
+        const container = document.getElementById('event-time-log-container');
+        container.innerHTML = '<p class="has-text-grey">Loading time logs...</p>';
+
+        try {
+            const response = await fetch(`/api/client/events/${eventId}/time-logs/${studentId}`);
+            if (!response.ok) throw new Error('Failed to fetch daily attendance.');
+            const logs = await response.json();
+
+            const logMap = new Map(logs.map(log => [log.log_slot, log.log_time]));
+
+            const slots = [
+                { id: 'morning_in', label: 'Time In (Morning)' },
+                { id: 'morning_out', label: 'Time Out (Morning)' },
+                { id: 'afternoon_in', label: 'Time In (Afternoon)' },
+                { id: 'afternoon_out', label: 'Time Out (Afternoon)' },
+                { id: 'evening_in', label: 'Time In (Evening)' },
+                { id: 'evening_out', label: 'Time Out (Evening)' },
+            ];
+
+            container.innerHTML = ''; // Clear loading message
+
+            slots.forEach(slot => {
+                const field = document.createElement('div');
+                field.className = 'field is-horizontal';
+
+                const loggedTime = logMap.get(slot.id);
+                let buttonHtml;
+
+                if (loggedTime) {
+                    buttonHtml = `<div class="control"><button class="button is-static">${loggedTime}</button></div>`;
+                } else {
+                    buttonHtml = `<div class="control"><button class="button is-info log-event-time-btn" data-slot="${slot.id}">Log Now</button></div>`;
+                }
+
+                field.innerHTML = `
+                    <div class="field-label is-normal">
+                        <label class="label">${slot.label}</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            ${buttonHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(field);
+            });
+
+        } catch (error) {
+            console.error('Error loading event time logs:', error);
+            container.innerHTML = `<p class="has-text-danger">Could not load time log data.</p>`;
+        }
+    }
+
     async function loadStudentDetails(studentId) {
         try {
             const response = await fetch(`/api/client/students/${studentId}/attendance`);
@@ -135,6 +189,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Fetch and populate the attendance stats
         loadStudentDetails(student.student_id);
 
+        // Reset and populate the master event selector
+        const eventSelector = document.getElementById('event-master-selector');
+        const eventManagementSection = document.getElementById('event-management-section');
+        eventManagementSection.classList.add('is-hidden');
+        eventSelector.innerHTML = '<option>Loading ongoing events...</option>';
+        fetch('/api/client/events/ongoing')
+            .then(res => res.json())
+            .then(events => {
+                if (events.length === 0) {
+                    eventSelector.innerHTML = '<option value="">No ongoing events found</option>';
+                    return;
+                }
+                eventSelector.innerHTML = '<option value="">-- Select an Event --</option>';
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.event_id;
+                    option.textContent = event.event_name;
+                    eventSelector.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Error populating event selector:', err));
+
         detailModal.classList.add('is-active');
     }
 
@@ -157,6 +233,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // --- Event Tab Listeners ---
+    document.getElementById('event-master-selector').addEventListener('change', (e) => {
+        const eventId = e.target.value;
+        const studentId = document.getElementById('modal-student-id').textContent;
+        const eventManagementSection = document.getElementById('event-management-section');
+
+        if (!eventId) {
+            eventManagementSection.classList.add('is-hidden');
+            return;
+        }
+        eventManagementSection.classList.remove('is-hidden');
+        loadAndRenderEventTimeLogs(studentId, eventId);
+    });
+
+    document.getElementById('event-time-log-container').addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('log-event-time-btn')) return;
+
+        const button = e.target;
+        const studentId = document.getElementById('modal-student-id').textContent;
+        const eventId = document.getElementById('event-master-selector').value;
+        const logSlot = button.dataset.slot;
+
+        try {
+            const response = await fetch('/api/client/event-time-logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id: eventId, student_id: studentId, log_slot: logSlot }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            loadAndRenderEventTimeLogs(studentId, eventId); // Refresh the view
+        } catch (error) { alert(`Error logging attendance: ${error.message}`); }
+    });
+
     // Tab switching for the modal
     const modalTabs = detailModal.querySelectorAll('.tabs li');
     const modalTabPanes = detailModal.querySelectorAll('.tab-pane');
@@ -165,6 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             modalTabs.forEach(t => t.classList.remove('is-active'));
             modalTabPanes.forEach(p => p.style.display = 'none');
             tab.classList.add('is-active');
+
             const targetPane = document.getElementById(tab.dataset.tab);
             if (targetPane) targetPane.style.display = 'block';
         });

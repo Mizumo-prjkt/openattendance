@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>ID Card Designer</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+        <style>
+            .id-card-container {
+                width: 539.75px; /* Standard ID card size in pixels at 96 DPI */
+                height: 337.34px;
+                border: 2px dashed #dbdbdb;
+                position: relative;
+                background-color: white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            .id-card-header {
+                background-color: #363636;
+                color: white;
+                padding: 10px;
+                text-align: center;
+            }
+            .id-card-photo {
+                width: 120px;
+                height: 120px;
+                object-fit: cover;
+                border: 3px solid white;
+                border-radius: 8px;
+            }
+            .qr-code-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder"></div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">ID Card Designer (Temporary)</h1>
+                    <h2 class="subtitle">Select a student to generate a sample ID card.</h2>
+
+                    <div class="box">
+                        <div class="field">
+                            <label class="label">Select Student</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="student-selector">
+                                        <option value="">Loading students...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="columns">
+                        <div class="column">
+                            <h3 class="title is-5">ID Card Front</h3>
+                            <div class="id-card-container p-4" id="id-card-front">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-narrow">
+                                        <figure class="image">
+                                            <img id="id-photo" class="id-card-photo" src="https://bulma.io/images/placeholders/128x128.png" alt="Student Photo">
+                                        </figure>
+                                    </div>
+                                    <div class="column">
+                                        <p class="title is-4 has-text-weight-bold" id="id-name">STUDENT NAME</p>
+                                        <p class="subtitle is-6" id="id-student-id">STUDENT_ID</p>
+                                        <p class="is-size-7" id="id-classroom">CLASSROOM/SECTION</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <h3 class="title is-5">ID Card Back</h3>
+                            <div class="id-card-container" id="id-card-back">
+                                <div class="qr-code-container" id="qr-code-container">
+                                    <p class="has-text-grey">Select a student to generate QR code.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/node/qrcode/build/qrcode.min.js"></script>
+    <script src="/tmp/id-designer.js"></script>
+</html>

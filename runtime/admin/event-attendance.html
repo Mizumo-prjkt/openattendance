@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+    <head>
+        <title>Event Attendance</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" >
+        <link rel="stylesheet" href="/shared/css/fontstyle.css">
+        <link rel="stylesheet" href="/node/bulma/css/bulma.min.css">
+        <link rel="stylesheet" href="/node/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="/admin/assets/css/panel.css">
+        <link rel="stylesheet" href="/admin/assets/css/main-elem.css">
+    </head>
+    <body>
+        <!-- Navbar will be injected here -->
+        <div id="navbar-placeholder"></div>
+
+        <div class="columns is-gapless">
+            <!-- Sidebar -->
+            <div class="column is-2 is-hidden-touch" id="sidebar-placeholder">
+                <!-- Sidebar will be injected here -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="column is-10 p-5">
+                <div class="container is-fluid" id="mainpst">
+                    <h1 class="title">Event Attendance Records</h1>
+                    <h2 class="subtitle">View and export attendance for specific school events.</h2>
+
+                    <!-- Event Selector -->
+                    <div class="box">
+                        <div class="field">
+                            <label class="label">Select an Event</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="event-selector">
+                                        <option value="">Loading events...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendee List (hidden until an event is selected) -->
+                    <div id="attendee-section" class="is-hidden">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="field">
+                                    <p class="control has-icons-left">
+                                        <input class="input" type="text" id="attendee-search" placeholder="Filter attendees...">
+                                        <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <button class="button is-success" id="export-csv-btn">
+                                    <span class="icon"><i class="fas fa-file-csv"></i></span>
+                                    <span>Export to CSV</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Student Name</th>
+                                        <th>Status</th>
+                                        <th>Checked-in By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendees-table-body">
+                                    <!-- Attendee data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Time Log Detail Modal -->
+        <div class="modal" id="time-log-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Detailed Time Logs</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="content">
+                        <p><strong>Student:</strong> <span id="log-modal-student-name"></span></p>
+                        <p><strong>Event:</strong> <span id="log-modal-event-name"></span></p>
+                        <div class="notification is-light mt-4">
+                            <p><strong>First Check-in:</strong> <span id="log-modal-check-in">N/A</span></p>
+                            <p><strong>Last Check-out:</strong> <span id="log-modal-check-out">N/A</span></p>
+                        </div>
+                        <h5 class="title is-5">Granular Time Logs</h5>
+                        <hr>
+                        <div id="time-log-details-container">
+                            <!-- Granular logs will be rendered here -->
+                            <p class="has-text-grey">Loading time logs...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </body>
+    <script src="/admin/assets/js/components.js"></script>
+    <script src="/admin/assets/js/event-attendance.js"></script>
+</html>

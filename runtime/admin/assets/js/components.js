@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (link.getAttribute('href') === currentPath) {
                 link.classList.add('is-active');
             }
-        })
+        });
+
+        // Dispatch a custom event to signal that components are ready
+        document.dispatchEvent(new CustomEvent('componentsLoaded'));
     });
 });

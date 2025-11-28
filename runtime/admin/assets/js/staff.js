@@ -1,9 +1,11 @@
-document.addEventListener('DOMContentLoaded', async () => {
+// Use a custom event listener to wait for components.js to finish loading the sidebar
+document.addEventListener('componentsLoaded', async () => {
     const tabs = document.querySelectorAll('.tabs li');
     const tabContent = document.querySelectorAll('.tab-pane');
     const addStaffModal = document.getElementById('add-staff-modal'); // For regular staff
     const addAdminModal = document.getElementById('add-admin-modal'); // For creating admins
     const editStaffModal = document.getElementById('edit-staff-modal'); // For editing staff
+    const cropperModal = document.getElementById('cropper-modal');
     const editAdminModal = document.getElementById('edit-admin-modal'); // For editing admins
 
     tabs.forEach(tab => {
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeStaffModal = () => {
         addStaffModal.classList.remove('is-active');
         document.getElementById('add-staff-form').reset(); // Reset form on close
+        document.getElementById('new-staff-profile-image').value = '';
         document.getElementById('teacher-fields').style.display = 'none'; // Hide teacher fields
     };
 
@@ -44,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelStaffBtn.addEventListener('click', closeStaffModal);
     staffModalCloseBtn.addEventListener('click', closeStaffModal);
     staffModalBackground.addEventListener('click', closeStaffModal);
+
+    // Cropper modal close logic
+    cropperModal.querySelector('.delete').addEventListener('click', () => cropperModal.classList.remove('is-active'));
+    cropperModal.querySelector('.modal-background').addEventListener('click', () => cropperModal.classList.remove('is-active'));
 
     // --- Conditional Form Fields ---
     const staffTypeSelect = document.getElementById('new-staff-type');
@@ -68,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('username', document.getElementById('new-staff-username').value);
         formData.append('password', document.getElementById('new-staff-password').value);
         
-        const imageFile = document.getElementById('new-staff-image').files[0];
+        const imageFile = document.getElementById('new-staff-profile-image').files[0];
         if (imageFile) {
             formData.append('profile_image', imageFile);
         }
@@ -145,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const closeModal = () => {
             modal.classList.remove('is-active');
             const form = modal.querySelector('form');
+            if (modal.id === 'edit-staff-modal') document.getElementById('edit-staff-profile-image').value = '';
             if (form) form.reset(); // Reset form on close
         };
         
@@ -203,27 +211,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Update staff account logic
     document.getElementById('update-staff-btn').addEventListener('click', async () => {
-        const id = document.getElementById('edit-staff-db-id').value; // Database ID
+        const id = document.getElementById('edit-staff-db-id').value;
+        const formData = new FormData();
+
+        formData.append('staff_id', document.getElementById('edit-staff-id').value);
+        formData.append('name', document.getElementById('edit-staff-name').value);
+        formData.append('email_address', document.getElementById('edit-staff-email').value);
+        formData.append('adviser_unit', document.getElementById('edit-adviser-unit').value);
+
         const password = document.getElementById('edit-staff-password').value;
         const confirmPassword = document.getElementById('edit-staff-confirm-password').value;
-
         if (password && password !== confirmPassword) {
             return alert('New passwords do not match.');
         }
+        if (password) formData.append('password', password);
 
-        const body = {
-            staff_id: document.getElementById('edit-staff-id').value,
-            name: document.getElementById('edit-staff-name').value,
-            email_address: document.getElementById('edit-staff-email').value,
-            adviser_unit: document.getElementById('edit-adviser-unit').value,
-        };
-        if (password) body.password = password; // Only send password if provided
+        const imageFile = document.getElementById('edit-staff-profile-image').files[0];
+        if (imageFile) formData.append('profile_image', imageFile);
 
         try {
             const response = await fetch(`/api/admin/staff/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
+                body: formData,
             });
             if (!response.ok) throw new Error((await response.json()).error);
             alert('Staff account updated successfully!');
@@ -379,9 +388,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // --- Cropper.js Logic ---
+    let activeImageInput = null; // To track which input triggered the cropper
+
+    const setupCropperListener = (inputId) => {
+        const imageInput = document.getElementById(inputId);
+        imageInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                activeImageInput = imageInput; // Set the active input
+                const reader = new FileReader();
+                reader.onload = () => {
+                    document.getElementById('cropper-image-element').src = reader.result;
+                    cropperModal.classList.add('is-active');
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    };
+
+    setupCropperListener('new-staff-profile-image');
+    setupCropperListener('edit-staff-profile-image');
+
+    document.getElementById('apply-crop-btn').addEventListener('click', async () => {
+        const cropperSelectionElement = document.getElementById('cropper-selection-element');
+        if (cropperSelectionElement && activeImageInput) {
+            const canvas = await cropperSelectionElement.$toCanvas({ width: 512, height: 512 });
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "cropped_staff_image.png", { type: 'image/png' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                activeImageInput.files = dataTransfer.files; // Set the cropped file to the correct input
+                cropperModal.classList.remove('is-active');
+            }, 'image/png');
+        }
+    });
+
+    document.getElementById('cancel-crop-btn').addEventListener('click', () => {
+        if (activeImageInput) activeImageInput.value = ''; // Clear the file input
+        cropperModal.classList.remove('is-active');
+    });
+
     // Initial data load when the page first loads
     loadAllAccounts()
-
-    document.getElementById('update-staff-btn').addEventListener('click', () => alert('Update Staff functionality to be implemented.'));
-    document.getElementById('update-admin-btn').addEventListener('click', () => alert('Update Admin functionality to be implemented.'));
 });

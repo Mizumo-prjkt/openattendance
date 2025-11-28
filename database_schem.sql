@@ -128,12 +128,28 @@ CREATE TABLE IF NOT EXISTS event_attendees (
     event_attendee_id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_id INTEGER NOT NULL,
     student_id TEXT NOT NULL,
-    check_in_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    check_in_time DATETIME NOT NULL,
+    check_out_time DATETIME,
     checked_in_by_staff_id TEXT NOT NULL,
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES students(student_id),
     FOREIGN KEY (checked_in_by_staff_id) REFERENCES staff_accounts(staff_id),
     UNIQUE (event_id, student_id)
+);
+
+-- Granular Daily Attendance Logs
+-- This table is designed to replace the simple 'present' and 'absent' tables over time.
+CREATE TABLE IF NOT EXISTS daily_attendance_logs (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id TEXT NOT NULL,
+    staff_id TEXT NOT NULL,
+    log_date DATE NOT NULL,
+    log_slot TEXT NOT NULL CHECK (log_slot IN ('morning_in', 'morning_out', 'afternoon_in', 'afternoon_out', 'evening_in', 'evening_out')),
+    log_time TIME NOT NULL,
+    log_datetime DATETIME NOT NULL,
+    UNIQUE(student_id, log_date, log_slot),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (staff_id) REFERENCES staff_accounts(staff_id)
 );
 
 -- System Logs table

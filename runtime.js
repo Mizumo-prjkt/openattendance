@@ -40,6 +40,11 @@ const backupsDir = path.join(__dirname, 'database', 'backups');
 if (!fs.existsSync(backupsDir)) {
     fs.mkdirSync(backupsDir, { recursive: true });
 }
+// Create a temporary directory for experimental files
+const tmpDir = path.join(__dirname, 'tmp');
+if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir, { recursive: true });
+}
 
 
 let logFilePath;
@@ -226,11 +231,115 @@ function runMigrations() {
                 });
             });
         }
+
+        // --- Migration from Version 3 to Version 4 ---
+        // This migration adds the check_out_time column to the event_attendees table.
+        if (currentVersion < 4) {
+            console.log("Applying migration to version 4: Adding 'check_out_time' to event_attendees...");
+            db.serialize(() => {
+                db.exec(`
+                    PRAGMA foreign_keys=off;
+                    BEGIN TRANSACTION;
+                    ALTER TABLE event_attendees ADD COLUMN check_out_time DATETIME;
+                    PRAGMA user_version = 4;
+                    COMMIT;
+                `, (err) => {
+                    if (err) console.error("Migration to version 4 failed:", err.message);
+                    else console.log("Successfully migrated database to version 4.");
+                });
+            });
+        }
+
+        // --- Migration from Version 4 to Version 5 ---
+        // This migration introduces a new, more granular attendance logging table
+        // and marks the beginning of deprecating the old 'present' and 'absent' tables.
+        if (currentVersion < 5) {
+            console.log("Applying migration to version 5: Creating 'daily_attendance_logs' table...");
+            db.serialize(() => {
+                db.exec(`
+                    BEGIN TRANSACTION;
+                    CREATE TABLE IF NOT EXISTS daily_attendance_logs (
+                        log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        student_id TEXT NOT NULL,
+                        staff_id TEXT NOT NULL,
+                        log_date DATE NOT NULL,
+                        log_slot TEXT NOT NULL CHECK (log_slot IN ('morning_in', 'morning_out', 'afternoon_in', 'afternoon_out', 'evening_in', 'evening_out')),
+                        log_time TIME NOT NULL,
+                        log_datetime DATETIME NOT NULL,
+                        UNIQUE(student_id, log_date, log_slot),
+                        FOREIGN KEY (student_id) REFERENCES students(student_id),
+                        FOREIGN KEY (staff_id) REFERENCES staff_accounts(staff_id)
+                    );
+                    PRAGMA user_version = 5;
+                    COMMIT;
+                `, (err) => {
+                    if (err) console.error("Migration to version 5 failed:", err.message);
+                    else console.log("Successfully migrated database to version 5.");
+                });
+            });
+        }
+
+        // --- Migration from Version 5 to Version 6 ---
+        // Replaces daily_attendance_logs with a more specific event_time_logs table
+        // to correctly associate granular time logs with specific events.
+        if (currentVersion < 6) {
+            console.log("Applying migration to version 6: Creating 'event_time_logs' table...");
+            db.serialize(() => {
+                db.exec(`
+                    BEGIN TRANSACTION;
+                    CREATE TABLE IF NOT EXISTS event_time_logs (
+                        log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        event_id INTEGER NOT NULL,
+                        student_id TEXT NOT NULL,
+                        staff_id TEXT NOT NULL,
+                        log_slot TEXT NOT NULL CHECK (log_slot IN ('morning_in', 'morning_out', 'afternoon_in', 'afternoon_out', 'evening_in', 'evening_out')),
+                        log_datetime DATETIME NOT NULL,
+                        UNIQUE(event_id, student_id, log_slot),
+                        FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+                        FOREIGN KEY (student_id) REFERENCES students(student_id),
+                        FOREIGN KEY (staff_id) REFERENCES staff_accounts(staff_id)
+                    );
+                    -- We can safely drop the old table as it was not correctly used.
+                    DROP TABLE IF EXISTS daily_attendance_logs;
+                    PRAGMA user_version = 6;
+                    COMMIT;
+                `, (err) => {
+                    if (err) console.error("Migration to version 6 failed:", err.message);
+                    else console.log("Successfully migrated database to version 6.");
+                });
+            });
+        }
+
     });
 }
 
 // Run migrations on startup
 runMigrations();
+
+/**
+ * Automatically updates the status of events in the database based on the current time.
+ * - Sets 'planned' events to 'ongoing' if the current time is within the event's duration.
+ * - Sets 'ongoing' events to 'completed' if the current time is past the event's end time.
+ */
+function updateEventStatuses() {
+    debugLogWriteToFile("Running automatic event status update job...");
+    db.serialize(() => {
+        // Transition planned events to ongoing
+        const toOngoingSql = `UPDATE events SET status = 'ongoing' WHERE status = 'planned' AND datetime('now') BETWEEN start_datetime AND end_datetime`;
+        db.run(toOngoingSql, function(err) {
+            if (err) return console.error("Error updating events to 'ongoing':", err.message);
+            if (this.changes > 0) console.log(`[Event Auto-Update] Marked ${this.changes} event(s) as 'ongoing'.`);
+        });
+
+        // Transition ongoing events to completed
+        const toCompletedSql = `UPDATE events SET status = 'completed' WHERE status = 'ongoing' AND datetime('now') > end_datetime`;
+        db.run(toCompletedSql, function(err) {
+            if (err) return console.error("Error updating events to 'completed':", err.message);
+            if (this.changes > 0) console.log(`[Event Auto-Update] Marked ${this.changes} event(s) as 'completed'.`);
+        });
+    });
+}
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -251,6 +360,7 @@ app.use('/node', express.static(path.join(__dirname, 'node_modules')));
 app.use('/shared', express.static(path.join(__dirname, 'runtime', 'shared')));
 app.use('/admin/assets', express.static(path.join(__dirname, 'runtime', 'admin', 'assets')));
 app.use('/client/assets', express.static(path.join(__dirname, 'runtime', 'client', 'assets')));
+// app.use('/tmp', express.static(path.join(__dirname, 'tmp'))); // Serve temporary files
 app.use('/client', express.static(path.join(__dirname, 'runtime', 'client'))); // Serve client-side JS
 app.use('/shared/images', express.static(path.join(__dirname, 'runtime/shared/images')));
 
@@ -263,6 +373,11 @@ app.listen(PORT, () => {
     brkln('nl');
     console.log(`OpenAttendance Runtime Admin is running on http://localhost:${PORT}/admin`);
     brkln('el');
+
+    // Run the event status updater on startup and then every 15 minutes.
+    updateEventStatuses();
+    setInterval(updateEventStatuses, 15 * 60 * 1000); // 15 minutes
+
 });
 
 // Serve pages
@@ -386,6 +501,22 @@ app.get('/admin-excuses', (req, res) => {
     }
 });
 
+app.get('/admin-events', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/events.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
+app.get('/admin-event-attendance', (req, res) => {
+    if (req.session.adminId) {
+        res.sendFile(path.join(__dirname, 'runtime/admin/event-attendance.html'));
+    } else {
+        res.redirect('/admin-login');
+    }
+});
+
 app.get('/admin-configuration', (req, res) => {
     if (req.session.adminId) {
         res.sendFile(path.join(__dirname, 'runtime/admin/configuration.html'));
@@ -409,6 +540,14 @@ app.get('/admin-logs', (req, res) => {
         res.redirect('/admin-login');
     }
 });
+
+// app.get('/admin/id-designer', (req, res) => {
+//     if (req.session.adminId) {
+//         res.sendFile(path.join(__dirname, 'tmp/id-designer.html'));
+//     } else {
+//         res.redirect('/admin-login');
+//     }
+// });
 
 app.get('/client/my-class', (req, res) => {
     if (req.session.staffId) {
@@ -750,32 +889,38 @@ app.post('/api/admin/staff', staffUpload, async (req, res) => {
 });
 
 // PUT /api/admin/staff/:id - Update a staff account
-app.put('/api/admin/staff/:id', async (req, res) => {
+app.put('/api/admin/staff/:id', staffUpload, async (req, res) => {
     if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
 
     const { id } = req.params; // This is the staff_accounts.id
     const { staff_id, name, email_address, adviser_unit, password } = req.body;
+    const profile_image_path = req.file ? `/shared/images/staff_profiles/${req.file.filename}` : null;
 
     // Update profile info
-    const profileSql = `UPDATE staff_accounts SET staff_id = ?, name = ?, email_address = ?, adviser_unit = ? WHERE id = ?`;
-    db.run(profileSql, [staff_id, name, email_address, adviser_unit, id], async function(err) {
+    let profileSql = `UPDATE staff_accounts SET staff_id = ?, name = ?, email_address = ?, adviser_unit = ?`;
+    let params = [staff_id, name, email_address, adviser_unit];
+
+    if (profile_image_path) {
+        profileSql += `, profile_image_path = ?`;
+        params.push(profile_image_path);
+    }
+
+    profileSql += ` WHERE id = ?`;
+    params.push(id);
+
+    db.run(profileSql, params, async function(err) {
         if (err) return res.status(500).json({ error: "Database error updating staff profile." });
 
-        // If a new password was provided, update the login table
         if (password) {
             try {
                 const hashedPassword = await bcrypt.hash(password, 10);
                 const loginSql = `UPDATE staff_login SET password = ? WHERE staff_id = ?`;
-                db.run(loginSql, [hashedPassword, staff_id], (err) => {
-                    if (err) return res.status(500).json({ error: "Database error updating password." });
-                    res.json({ message: "Staff account and password updated successfully." });
-                });
+                await new Promise((resolve, reject) => db.run(loginSql, [hashedPassword, staff_id], (err) => err ? reject(err) : resolve()));
             } catch (error) {
                 return res.status(500).json({ error: "Failed to process new password." });
             }
-        } else {
-            res.json({ message: "Staff account updated successfully." });
         }
+        res.json({ message: "Staff account updated successfully." });
     });
 });
 
@@ -876,6 +1021,135 @@ app.delete('/api/admin/students/:id', (req, res) => {
         if (err) return res.status(500).json({ error: "Database error deleting student record. This may be due to existing attendance records linked to this student." });
         if (this.changes === 0) return res.status(404).json({ error: "Student not found." });
         res.json({ message: "Student record deleted successfully." });
+    });
+});
+
+// --- Events API ---
+
+// GET /api/admin/events - Retrieve all events
+app.get('/api/admin/events', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const sql = `SELECT event_id, event_name, event_description, location, start_datetime, end_datetime, status FROM events ORDER BY start_datetime DESC`;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error retrieving events." });
+        res.json(rows || []);
+    });
+});
+
+// POST /api/admin/events - Create a new event
+app.post('/api/admin/events', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { event_name, event_description, location, start_datetime, end_datetime } = req.body;
+    const created_by_staff_id = req.session.adminId; // For now, we'll log the admin's ID as the creator.
+
+    if (!event_name || !start_datetime || !end_datetime) {
+        return res.status(400).json({ error: "Event Name, Start Time, and End Time are required." });
+    }
+
+    const sql = `INSERT INTO events (event_name, event_description, location, start_datetime, end_datetime, created_by_staff_id) VALUES (?, ?, ?, ?, ?, ?)`;
+    const params = [event_name, event_description, location, start_datetime, end_datetime, created_by_staff_id];
+
+    db.run(sql, params, function(err) {
+        if (err) return res.status(500).json({ error: "Database error creating event.", details: err.message });
+        res.status(201).json({ message: "Event created successfully.", id: this.lastID });
+    });
+});
+
+// PUT /api/admin/events/:id - Update an event
+app.put('/api/admin/events/:id', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    const { event_name, event_description, location, start_datetime, end_datetime, status } = req.body;
+
+    const sql = `
+        UPDATE events SET 
+            event_name = ?, 
+            event_description = ?, 
+            location = ?, 
+            start_datetime = ?, 
+            end_datetime = ?,
+            status = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE event_id = ?
+    `;
+    const params = [event_name, event_description, location, start_datetime, end_datetime, status, id];
+
+    db.run(sql, params, function(err) {
+        if (err) return res.status(500).json({ error: "Database error updating event.", details: err.message });
+        res.json({ message: "Event updated successfully." });
+    });
+});
+
+// GET /api/admin/events/:id/attendees - Retrieve all attendees for a specific event
+app.get('/api/admin/events/:id/attendees', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    const sql = `
+        WITH EventLogs AS (
+            SELECT
+                student_id,
+                MIN(log_datetime) as first_check_in,
+                MAX(log_datetime) as last_check_out,
+                -- Find the staff member who logged the first check-in
+                (SELECT staff_id FROM event_time_logs WHERE event_id = ? AND student_id = etl.student_id ORDER BY log_datetime ASC LIMIT 1) as first_staff_id
+            FROM event_time_logs etl
+            WHERE event_id = ?
+            GROUP BY student_id
+        )
+        SELECT
+            s.student_id,
+            s.first_name AS student_first_name,
+            s.last_name AS student_last_name,
+            el.first_check_in AS check_in_time,
+            CASE WHEN (SELECT COUNT(*) FROM event_time_logs WHERE event_id = ? AND student_id = s.student_id) > 1 THEN el.last_check_out ELSE NULL END as check_out_time,
+            sa.name AS checked_in_by_staff_name
+        FROM EventLogs el
+        JOIN students s ON el.student_id = s.student_id
+        LEFT JOIN staff_accounts sa ON el.first_staff_id = sa.staff_id
+        ORDER BY el.first_check_in DESC
+    `;
+    db.all(sql, [id, id, id], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error retrieving event attendees.", details: err.message });
+        res.json(rows || []);
+    });
+});
+
+// GET /api/admin/events/:eventId/time-logs/:studentId - Admin version to get time logs
+app.get('/api/admin/events/:eventId/time-logs/:studentId', (req, res) => {
+    if (!req.session.adminId) {
+        return res.status(401).json({ error: "Administrator not authenticated." });
+    }
+
+    const { eventId, studentId } = req.params;
+
+    const sql = `
+        SELECT 
+            etl.log_slot, 
+            strftime('%H:%M:%S', etl.log_datetime, 'localtime') as log_time,
+            sa.name as staff_name
+        FROM event_time_logs etl
+        JOIN staff_accounts sa ON etl.staff_id = sa.staff_id
+        WHERE etl.event_id = ? AND etl.student_id = ?`;
+    db.all(sql, [eventId, studentId], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error fetching event time logs." });
+        res.json(rows || []);
+    });
+});
+
+// DELETE /api/admin/events/:id - Delete an event
+app.delete('/api/admin/events/:id', (req, res) => {
+    if (!req.session.adminId) return res.status(401).json({ error: "Administrator not authenticated." });
+
+    const { id } = req.params;
+    // The ON DELETE CASCADE in the schema for event_attendees will handle cleanup.
+    db.run('DELETE FROM events WHERE event_id = ?', [id], function(err) {
+        if (err) return res.status(500).json({ error: "Database error deleting event." });
+        if (this.changes === 0) return res.status(404).json({ error: "Event not found." });
+        res.json({ message: "Event deleted successfully." });
     });
 });
 
@@ -1524,16 +1798,121 @@ app.get('/api/client/students/:studentId/attendance', (req, res) => {
             FROM excused 
             WHERE student_id = ? AND result = 'pending'
             ORDER BY request_datetime DESC
+        `,
+        event_history: `
+            SELECT 
+                e.event_id,
+                e.event_name,
+                ea.check_in_time,
+                ea.check_out_time
+            FROM event_attendees ea
+            JOIN events e ON ea.event_id = e.event_id
+            WHERE ea.student_id = ?
+            ORDER BY ea.check_in_time DESC
         `
     };
 
     Promise.all([
         new Promise((resolve, reject) => db.get(queries.stats, [studentId, studentId, studentId], (err, row) => err ? reject(err) : resolve(row))),
-        new Promise((resolve, reject) => db.all(queries.excuses, [studentId], (err, rows) => err ? reject(err) : resolve(rows)))
-    ]).then(([stats, excuses]) => {
-        res.json({ stats, excuses });
+        new Promise((resolve, reject) => db.all(queries.excuses, [studentId], (err, rows) => err ? reject(err) : resolve(rows))),
+        new Promise((resolve, reject) => db.all(queries.event_history, [studentId], (err, rows) => err ? reject(err) : resolve(rows)))
+    ]).then(([stats, excuses, event_history]) => {
+        res.json({ stats, excuses, event_history });
     }).catch(err => {
         res.status(500).json({ error: "Database error fetching student attendance data.", details: err.message });
+    });
+});
+
+// --- New Granular Attendance API ---
+
+// GET /api/client/events/:eventId/time-logs/:studentId - Get all time logs for a student for a specific event
+app.get('/api/client/events/:eventId/time-logs/:studentId', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const { eventId, studentId } = req.params;
+
+    const sql = `SELECT log_slot, strftime('%H:%M:%S', log_datetime, 'localtime') as log_time FROM event_time_logs WHERE event_id = ? AND student_id = ?`;
+    db.all(sql, [eventId, studentId], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error fetching event time logs." });
+        res.json(rows || []);
+    });
+});
+
+// POST /api/client/event-time-logs - Log a new granular time slot for a student at an event
+app.post('/api/client/event-time-logs', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const { event_id, student_id, log_slot } = req.body;
+    const staffId = req.session.staffId;
+    const now = new Date();
+    const log_datetime = now.toISOString();
+
+    const sql = `INSERT INTO event_time_logs (event_id, student_id, staff_id, log_slot, log_datetime) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [event_id, student_id, staffId, log_slot, log_datetime], function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: `An entry for this time slot already exists for this student at this event.` });
+            return res.status(500).json({ error: "Database error logging attendance.", details: err.message });
+        }
+        res.status(201).json({ message: `Time slot '${log_slot}' recorded successfully.` });
+    });
+});
+
+
+// --- New Endpoints for Event Check-in ---
+
+// GET /api/client/events/ongoing - Get a list of all currently ongoing events
+app.get('/api/client/events/ongoing', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const sql = `SELECT event_id, event_name FROM events WHERE status = 'ongoing' ORDER BY start_datetime DESC`;
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error fetching ongoing events." });
+        res.json(rows || []);
+    });
+});
+
+// POST /api/client/events/:eventId/check-in - Check a student into an event
+app.post('/api/client/events/:eventId/check-in', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const { eventId } = req.params;
+    const { student_id } = req.body;
+    const staffId = req.session.staffId;
+
+    if (!student_id) {
+        return res.status(400).json({ error: "Student ID is required." });
+    }
+
+    const sql = `INSERT INTO event_attendees (event_id, student_id, checked_in_by_staff_id) VALUES (?, ?, ?)`;
+    db.run(sql, [eventId, student_id, staffId], function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) return res.status(409).json({ error: 'This student is already checked into this event.' });
+            return res.status(500).json({ error: "Database error during check-in.", details: err.message });
+        }
+        res.status(201).json({ message: "Student checked in successfully." });
+    });
+});
+
+// POST /api/client/events/:eventId/check-out - Check a student out from an event
+app.post('/api/client/events/:eventId/check-out', (req, res) => {
+    if (!req.session.staffId) return res.status(401).json({ error: "Not authenticated." });
+
+    const { eventId } = req.params;
+    const { student_id } = req.body;
+
+    if (!student_id) {
+        return res.status(400).json({ error: "Student ID is required." });
+    }
+
+    const sql = `UPDATE event_attendees SET check_out_time = CURRENT_TIMESTAMP WHERE event_id = ? AND student_id = ? AND check_out_time IS NULL`;
+    db.run(sql, [eventId, student_id], function(err) {
+        if (err) {
+            return res.status(500).json({ error: "Database error during check-out.", details: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Student is not currently checked-in to this event or has already been checked out.' });
+        }
+        res.status(200).json({ message: "Student checked out successfully." });
     });
 });
 
